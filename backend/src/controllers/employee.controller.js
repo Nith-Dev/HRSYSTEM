@@ -7,6 +7,65 @@ const include = {
   educationLevel: true,
 }
 
+const TYPE_LABEL = { POLICE: 'នគរបាល', CIVIL: 'ស៊ីវិល', CONTRACT: 'ជាប់កិច្ចសន្យា' }
+
+async function writeLog(data) {
+  await prisma.activityLog.create({ data })
+}
+
+async function logChanges(oldEmp, newEmp, userId, userName) {
+  const base = {
+    employeeId: newEmp.id,
+    employeeName: `${newEmp.khmerLastName} ${newEmp.khmerFirstName}`,
+    userId,
+    userName,
+  }
+
+  const checks = [
+    {
+      changed: oldEmp.position !== newEmp.position,
+      changeType: 'PROMOTION',
+      field: 'position',
+      oldValue: oldEmp.position,
+      newValue: newEmp.position,
+    },
+    {
+      changed: oldEmp.rankId !== newEmp.rankId,
+      changeType: 'PROMOTION',
+      field: 'rank',
+      oldValue: oldEmp.rank?.nameKh || null,
+      newValue: newEmp.rank?.nameKh || null,
+    },
+    {
+      changed: oldEmp.departmentId !== newEmp.departmentId,
+      changeType: 'TRANSFER',
+      field: 'department',
+      oldValue: oldEmp.department?.nameKh || null,
+      newValue: newEmp.department?.nameKh || null,
+    },
+    {
+      changed: oldEmp.officeId !== newEmp.officeId,
+      changeType: 'TRANSFER',
+      field: 'office',
+      oldValue: oldEmp.office?.nameKh || null,
+      newValue: newEmp.office?.nameKh || null,
+    },
+    {
+      changed: oldEmp.employeeType !== newEmp.employeeType,
+      changeType: 'UPDATE',
+      field: 'employeeType',
+      oldValue: TYPE_LABEL[oldEmp.employeeType] || oldEmp.employeeType,
+      newValue: TYPE_LABEL[newEmp.employeeType] || newEmp.employeeType,
+    },
+  ]
+
+  for (const c of checks) {
+    if (c.changed) {
+      await writeLog({ ...base, changeType: c.changeType, field: c.field, oldValue: c.oldValue, newValue: c.newValue })
+    }
+  }
+}
+
 const getAll = async (req, res) => {
   const { search, departmentId, officeId, gender, employeeType, page = 1, limit = 20 } = req.query
   const pageNumber = Math.max(parseInt(page, 10) || 1, 1)
@@ -56,18 +115,52 @@ const getById = async (req, res) => {
 const create = async (req, res) => {
   const data = buildEmployeeData(req.body)
   const employee = await prisma.employee.create({ data, include })
+
+  await writeLog({
+    employeeId: employee.id,
+    employeeName: `${employee.khmerLastName} ${employee.khmerFirstName}`,
+    userId: req.user?.id || null,
+    userName: req.user?.name || null,
+    changeType: 'CREATE',
+    field: null,
+    oldValue: null,
+    newValue: null,
+  })
+
   res.status(201).json(employee)
 }
 
 const update = async (req, res) => {
   const id = parseInt(req.params.id)
+  const oldEmployee = await prisma.employee.findUnique({ where: { id }, include })
+  if (!oldEmployee) return res.status(404).json({ message: 'Employee not found' })
+
   const data = buildEmployeeData(req.body)
   const employee = await prisma.employee.update({ where: { id }, data, include })
+
+  await logChanges(oldEmployee, employee, req.user?.id || null, req.user?.name || null)
+
   res.json(employee)
 }
 
 const remove = async (req, res) => {
-  await prisma.employee.delete({ where: { id: parseInt(req.params.id) } })
+  const id = parseInt(req.params.id)
+  const employee = await prisma.employee.findUnique({ where: { id } })
+
+  if (employee) {
+    await writeLog({
+      employeeId: null,
+      employeeName: `${employee.khmerLastName} ${employee.khmerFirstName}`,
+      userId: req.user?.id || null,
+      userName: req.user?.name || null,
+      changeType: 'DELETE',
+      field: null,
+      oldValue: null,
+      newValue: null,
+    })
+  }
+
+  await prisma.employee.delete({ where: { id } })
   res.json({ message: 'Employee deleted' })
 }
 

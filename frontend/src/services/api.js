@@ -65,4 +65,8 @@ export const educationApi = {
   delete: (id) => api.delete(`/education-levels/${id}`),
 }
 
+export const activityApi = {
+  getRecent: (limit = 20) => api.get('/activity-logs', { params: { limit } }),
+}
+
 export default api

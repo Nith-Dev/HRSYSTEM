@@ -82,4 +82,19 @@ model Employee {
   employeeType     String          @default("POLICE")
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
+  activityLogs     ActivityLog[]
+}
+
+model ActivityLog {
+  id           Int       @id @default(autoincrement())
+  employeeId   Int?
+  employee     Employee? @relation(fields: [employeeId], references: [id], onDelete: SetNull)
+  employeeName String
+  userId       Int?
+  userName     String?
+  changeType   String
+  field        String?
+  oldValue     String?
+  newValue     String?
+  createdAt    DateTime  @default(now())
 }

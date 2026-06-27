@@ -7,6 +7,7 @@
     "start": "node src/index.js",
     "db:push": "prisma db push",
     "db:seed": "node prisma/seed.js",
+    "db:import": "node prisma/import-employees.js",
     "db:studio": "prisma studio"
   },
   "dependencies": {

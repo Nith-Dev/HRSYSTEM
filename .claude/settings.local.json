@@ -7,7 +7,12 @@
       "PowerShell(New-Item -ItemType Directory -Force -Path \"C:\\\\Users\\\\Nith_Dev\\\\Desktop\\\\HRSYSTEM\\\\frontend\\\\src\\\\pages\\\\employees\")",
       "PowerShell(New-Item -ItemType Directory -Force -Path \"C:\\\\Users\\\\Nith_Dev\\\\Desktop\\\\HRSYSTEM\\\\frontend\\\\src\\\\pages\\\\departments\")",
       "PowerShell(New-Item -ItemType Directory -Force -Path \"C:\\\\Users\\\\Nith_Dev\\\\Desktop\\\\HRSYSTEM\\\\frontend\\\\src\\\\pages\\\\settings\")",
-      "PowerShell(Set-Location \"C:\\\\Users\\\\Nith_Dev\\\\Desktop\\\\HRSYSTEM\\\\backend\"; Start-Process powershell -ArgumentList \"-NoExit\", \"-Command\", \"Set-Location 'C:\\\\Users\\\\Nith_Dev\\\\Desktop\\\\HRSYSTEM\\\\backend'; npm run dev\" -WindowStyle Normal; Start-Sleep -Seconds 3; Write-Output \"Backend window launched\")"
+      "PowerShell(Set-Location \"C:\\\\Users\\\\Nith_Dev\\\\Desktop\\\\HRSYSTEM\\\\backend\"; Start-Process powershell -ArgumentList \"-NoExit\", \"-Command\", \"Set-Location 'C:\\\\Users\\\\Nith_Dev\\\\Desktop\\\\HRSYSTEM\\\\backend'; npm run dev\" -WindowStyle Normal; Start-Sleep -Seconds 3; Write-Output \"Backend window launched\")",
+      "PowerShell(Invoke-RestMethod -Uri \"http://localhost:5000/api/auth/login\" -Method POST -ContentType \"application/json\" -Body '{\"email\":\"admin@hrsystem.gov.kh\",\"password\":\"admin123\"}')",
+      "PowerShell(Get-NetTCPConnection -LocalPort 5000,5173 -State Listen -ErrorAction SilentlyContinue | Select-Object LocalPort, OwningProcess | ForEach-Object { $proc = Get-Process -Id $_.OwningProcess -ErrorAction SilentlyContinue; [PSCustomObject]@{Port=$_.LocalPort; PID=$_.OwningProcess; Name=$proc.Name} })",
+      "PowerShell(Invoke-RestMethod -Uri \"http://localhost:5000/api/auth/login\" -Method POST -ContentType \"application/json\" -Body '{\"email\":\"admin@hrsystem.gov.kh\",\"password\":\"admin123\"}' | ForEach-Object { $token = $_.token; Invoke-RestMethod -Uri \"http://localhost:5000/api/employees/stats\" -Headers @{Authorization=\"Bearer $token\"} })",
+      "Bash(node prisma/import-employees.js)",
+      "PowerShell(if \\(Test-Path \"C:\\\\Users\\\\Nith_Dev\\\\Desktop\\\\HRSYSTEM\\\\backend\\\\prisma\\\\employees.json\"\\) { Write-Output \"EXISTS\"; \\(Get-Content \"C:\\\\Users\\\\Nith_Dev\\\\Desktop\\\\HRSYSTEM\\\\backend\\\\prisma\\\\employees.json\" | Measure-Object -Line\\).Lines } else { Write-Output \"NOT FOUND\" })"
     ]
   }
 }

@@ -15,7 +15,7 @@ const getAll = async (req, res) => {
 
   if (search) {
     where.OR = [
-      { latinName: { contains: search, mode: 'insensitive' } },
+      { latinName: { contains: search } },
       { khmerFirstName: { contains: search } },
       { khmerLastName: { contains: search } },
       { badgeNumber: { contains: search } },

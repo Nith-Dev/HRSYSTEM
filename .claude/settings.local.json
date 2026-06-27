@@ -12,7 +12,16 @@
       "PowerShell(Get-NetTCPConnection -LocalPort 5000,5173 -State Listen -ErrorAction SilentlyContinue | Select-Object LocalPort, OwningProcess | ForEach-Object { $proc = Get-Process -Id $_.OwningProcess -ErrorAction SilentlyContinue; [PSCustomObject]@{Port=$_.LocalPort; PID=$_.OwningProcess; Name=$proc.Name} })",
       "PowerShell(Invoke-RestMethod -Uri \"http://localhost:5000/api/auth/login\" -Method POST -ContentType \"application/json\" -Body '{\"email\":\"admin@hrsystem.gov.kh\",\"password\":\"admin123\"}' | ForEach-Object { $token = $_.token; Invoke-RestMethod -Uri \"http://localhost:5000/api/employees/stats\" -Headers @{Authorization=\"Bearer $token\"} })",
       "Bash(node prisma/import-employees.js)",
-      "PowerShell(if \\(Test-Path \"C:\\\\Users\\\\Nith_Dev\\\\Desktop\\\\HRSYSTEM\\\\backend\\\\prisma\\\\employees.json\"\\) { Write-Output \"EXISTS\"; \\(Get-Content \"C:\\\\Users\\\\Nith_Dev\\\\Desktop\\\\HRSYSTEM\\\\backend\\\\prisma\\\\employees.json\" | Measure-Object -Line\\).Lines } else { Write-Output \"NOT FOUND\" })"
+      "PowerShell(if \\(Test-Path \"C:\\\\Users\\\\Nith_Dev\\\\Desktop\\\\HRSYSTEM\\\\backend\\\\prisma\\\\employees.json\"\\) { Write-Output \"EXISTS\"; \\(Get-Content \"C:\\\\Users\\\\Nith_Dev\\\\Desktop\\\\HRSYSTEM\\\\backend\\\\prisma\\\\employees.json\" | Measure-Object -Line\\).Lines } else { Write-Output \"NOT FOUND\" })",
+      "PowerShell(railway --version 2>$null)",
+      "PowerShell(vercel --version 2>$null)",
+      "PowerShell(npm install -g @railway/cli vercel)",
+      "PowerShell(npm install -g @railway/cli)",
+      "PowerShell(npm install -g vercel)",
+      "PowerShell(railway login)",
+      "PowerShell(vercel login)",
+      "PowerShell(Invoke-WebRequest -Uri \"https://hrsystem-fs4d.onrender.com/api/auth/login\" -Method POST -ContentType \"application/json\" -Body '{\"email\":\"admin@hrsystem.gov.kh\",\"password\":\"admin123\"}' 2>&1)",
+      "PowerShell(Get-ChildItem \"$env:APPDATA\\\\com.vercel.cli\" -Recurse -ErrorAction SilentlyContinue | Select-Object FullName)"
     ]
   }
 }

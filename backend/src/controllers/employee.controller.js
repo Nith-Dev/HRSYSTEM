@@ -22,14 +22,8 @@ const getAll = async (req, res) => {
       { latinName: { contains: searchTerm.toUpperCase() } },
       { khmerFirstName: { contains: searchTerm } },
       { khmerLastName: { contains: searchTerm } },
-      { badgeNumber: { contains: searchTerm } },
-      { phone: { contains: searchTerm } },
+      { badgeNumber: { equals: searchTerm } },
     ]
-
-    const sequentialNo = parseInt(searchTerm, 10)
-    if (!Number.isNaN(sequentialNo)) {
-      where.OR.push({ sequentialNo })
-    }
   }
   if (departmentId) where.departmentId = parseInt(departmentId, 10)
   if (officeId) where.officeId = parseInt(officeId, 10)

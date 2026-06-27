@@ -41,6 +41,7 @@ A minimal HR system designed to digitize the monthly staff list (បញ្ជី
 
 ## 3. System Architecture
 
+**Local development:**
 ```
 ┌─────────────────────────────────────────────────────┐
 │                    BROWSER                          │
@@ -68,7 +69,32 @@ A minimal HR system designed to digitize the monthly staff list (បញ្ជី
 │                  DATABASE                           │
 │                                                     │
 │  SQLite  →  backend/prisma/dev.db                   │
-│  (switch to PostgreSQL for production)              │
+└─────────────────────────────────────────────────────┘
+```
+
+**Production:**
+```
+┌─────────────────────────────────────────────────────┐
+│                    BROWSER                          │
+│   https://frontend-swart-chi-49.vercel.app          │
+│                                                     │
+│  React (built by Vite, hosted on Vercel)            │
+└──────────────────────┬──────────────────────────────┘
+                       │ HTTPS / REST API
+                       ▼
+┌─────────────────────────────────────────────────────┐
+│                   BACKEND                           │
+│   https://hrsystem-fs4d.onrender.com                │
+│                                                     │
+│  Node.js + Express.js (Docker on Render free tier)  │
+└──────────────────────┬──────────────────────────────┘
+                       │ Prisma ORM
+                       ▼
+┌─────────────────────────────────────────────────────┐
+│                  DATABASE                           │
+│                                                     │
+│  SQLite (ephemeral on Render — resets on deploy)    │
+│  Upgrade path: Render PostgreSQL or Supabase        │
 └─────────────────────────────────────────────────────┘
 ```
 
@@ -291,16 +317,17 @@ HRSYSTEM/
 - Khmer error messages
 
 ### Dashboard (`/`)
-- Total headcount card
-- Breakdown by employee type (Police / Civil / Contract)
-- Gender ratio with progress bars
-- Per-department headcount list
+- 4 stat cards: total headcount, Police count, Civil count, Contract count — each with colored icon box and percentage pill
+- **Gender breakdown card**: SVG donut chart (no library) — blue for male, pink for female, total count in center, Khmer label "នាក់"
+- **Department breakdown**: 2-column grid of clickable rows (no scroll) — each row links to `/employees?departmentId=X` to pre-filter the employee list, sorted by count descending
 
 ### Employee List (`/employees`)
 - Paginated table (20 per page)
 - Search by name (Khmer or Latin), badge number, phone
 - Filter by department, gender, employee type
-- Shows rank, position, department, type badge, date of birth
+- Office filter dropdown labeled "ការិយាល័យទាំងអស់"
+- Shows rank, position, department, type badge, date of birth (column: "ថ្ងៃខែឆ្នាំកំណើត")
+- Accepts `?departmentId=` URL query param to pre-apply department filter (used by Dashboard links)
 - Add / Edit / Delete actions (role-restricted)
 
 ### Employee Add/Edit Form (`/employees/new`, `/employees/:id/edit`)
@@ -388,7 +415,7 @@ npm run db:seed    # Inserts initial data
 | Export to PDF (monthly report format) | Planned v2 |
 | Export to Excel | Planned v2 |
 | User management UI | Planned v2 |
-| Bulk import from PDF/Excel | Planned v2 |
+| Bulk import from PDF/Excel | ✅ DONE — 419 employees imported |
 | Audit log (who changed what) | Planned v3 |
 | PostgreSQL migration (production) | When deploying |
 
@@ -396,12 +423,67 @@ npm run db:seed    # Inserts initial data
 
 ## 12. Environment Variables
 
-**backend/.env**
+**backend/.env** (local development)
 ```
 DATABASE_URL="file:./dev.db"
 JWT_SECRET="hrsystem_jwt_secret_key_2026"
 PORT=5000
+FRONTEND_URL="http://localhost:5173"
 ```
+
+**backend/.env.example** and **frontend/.env.example** are committed to git as templates.
+
+---
+
+## 13. Production Deployment
+
+### Live URLs
+| Service | URL |
+|---|---|
+| **Frontend** | https://frontend-swart-chi-49.vercel.app |
+| **Backend** | https://hrsystem-fs4d.onrender.com |
+
+### Frontend — Vercel
+- Platform: [vercel.com](https://vercel.com) — free tier, auto-deploys on push to `main`
+- Project: `manith-devs-projects/frontend`
+- Build: Vite auto-detected, output `dist/`
+- Environment variable set via Vercel dashboard / API:
+  ```
+  VITE_API_URL=https://hrsystem-fs4d.onrender.com/api
+  ```
+
+### Backend — Render
+- Platform: [render.com](https://render.com) — free tier (spins down after 15 min inactivity)
+- Service ID: `srv-d8vr7v8k1i2s73f2l250`
+- Build uses **Dockerfile** at repo root
+- Environment variables set on Render:
+  ```
+  DATABASE_URL=file:./dev.db
+  JWT_SECRET=hrsystem_prod_8f3k2p9x7qmz4nv6rtwj5yb1dce0aul
+  FRONTEND_URL=https://frontend-swart-chi-49.vercel.app
+  ```
+
+### Dockerfile (repo root)
+```dockerfile
+FROM node:18-slim
+RUN apt-get update -y && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
+WORKDIR /app/backend
+COPY backend/package*.json ./
+COPY backend/prisma ./prisma/
+RUN npm install
+COPY backend/src ./src/
+EXPOSE 8080
+CMD ["node", "src/index.js"]
+```
+
+### To redeploy
+- **Frontend**: push to `main` — Vercel auto-deploys, or run `vercel --prod` from `frontend/`
+- **Backend**: push to `main` — Render auto-deploys from GitHub
+
+### Important notes
+- SQLite `dev.db` on Render is **ephemeral** — data resets on each redeploy. Upgrade to a persistent disk or migrate to PostgreSQL for production data safety.
+- Render free tier sleeps after 15 min — first request after sleep takes ~30 seconds to wake up.
+- To migrate to PostgreSQL: change `provider = "sqlite"` → `"postgresql"` in `backend/prisma/schema.prisma` and update `DATABASE_URL`.
 
 ---
 

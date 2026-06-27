@@ -22,21 +22,6 @@ const StatCard = ({ label, value, total, color, borderColor, icon }) => {
   )
 }
 
-const DeptRow = ({ name, count, max }) => (
-  <div className="py-2">
-    <div className="flex justify-between items-center mb-1">
-      <span className="text-sm text-gray-700 truncate max-w-[70%]">{name}</span>
-      <span className="text-sm font-semibold text-gray-900">{count}</span>
-    </div>
-    <div className="w-full bg-gray-100 rounded-full h-1.5">
-      <div
-        className="bg-blue-500 h-1.5 rounded-full transition-all"
-        style={{ width: `${max ? (count / max) * 100 : 0}%` }}
-      />
-    </div>
-  </div>
-)
-
 export default function Dashboard() {
   const [stats, setStats] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -60,7 +45,6 @@ export default function Dashboard() {
   const femalePct = total ? Math.round((female / total) * 100) : 0
 
   const sortedDepts = [...(stats?.byDepartment ?? [])].sort((a, b) => b.count - a.count)
-  const maxDept = sortedDepts[0]?.count ?? 1
 
   return (
     <div className="space-y-6">
@@ -108,16 +92,18 @@ export default function Dashboard() {
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+        {/* Gender card */}
         <div className="card p-6">
           <h3 className="font-semibold text-gray-900 mb-4">ចំនួនតាមភេទ</h3>
 
-          <div className="flex rounded-full overflow-hidden h-3 mb-5">
+          {/* Stacked bar */}
+          <div className="flex rounded-full overflow-hidden h-3 mb-5 bg-gray-100">
             <div className="bg-blue-500 transition-all" style={{ width: `${malePct}%` }} />
             <div className="bg-pink-400 transition-all" style={{ width: `${femalePct}%` }} />
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-blue-500" />
@@ -139,22 +125,37 @@ export default function Dashboard() {
               </div>
             </div>
           </div>
+
+          <p className="text-xs text-gray-400 mt-5 text-center">សរុប {total} នាក់</p>
         </div>
 
+        {/* Department list — no scroll, clickable rows */}
         <div className="card p-6 lg:col-span-2">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold text-gray-900">ចំនួនតាមនាយកដ្ឋាន</h3>
-            <span className="text-xs text-gray-400">{sortedDepts.length} នាយកដ្ឋាន</span>
+            <span className="badge bg-gray-100 text-gray-500">{sortedDepts.length} នាយកដ្ឋាន</span>
           </div>
-          <div className="space-y-1 max-h-56 overflow-y-auto pr-1">
-            {sortedDepts.length === 0 ? (
-              <p className="text-gray-400 text-sm">មិនទាន់មានទិន្នន័យ</p>
-            ) : (
-              sortedDepts.map((d) => (
-                <DeptRow key={d.departmentId} name={d.name} count={d.count} max={maxDept} />
-              ))
-            )}
-          </div>
+
+          {sortedDepts.length === 0 ? (
+            <p className="text-gray-400 text-sm">មិនទាន់មានទិន្នន័យ</p>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6">
+              {sortedDepts.map((d) => (
+                <Link
+                  key={d.departmentId}
+                  to={`/employees?departmentId=${d.departmentId}`}
+                  className="group flex items-center justify-between py-2.5 border-b border-gray-100 last:border-0 hover:bg-blue-50 -mx-2 px-2 rounded-lg transition-colors"
+                >
+                  <span className="text-sm text-gray-700 group-hover:text-blue-600 truncate transition-colors">
+                    {d.name}
+                  </span>
+                  <span className="ml-3 shrink-0 badge bg-blue-100 text-blue-700 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                    {d.count}
+                  </span>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

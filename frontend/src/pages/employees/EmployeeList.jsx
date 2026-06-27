@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { employeeApi, departmentApi, officeApi } from '../../services/api'
 import { format } from 'date-fns'
 import toast from 'react-hot-toast'
@@ -23,6 +23,7 @@ const TYPE_LABEL = { POLICE: 'នគរបាល', CIVIL: 'ស៊ីវិល', 
 
 export default function EmployeeList() {
   const { user } = useAuth()
+  const [searchParams] = useSearchParams()
   const [employees, setEmployees] = useState([])
   const [departments, setDepartments] = useState([])
   const [offices, setOffices] = useState([])
@@ -31,8 +32,9 @@ export default function EmployeeList() {
   const [page, setPage] = useState(1)
   const limit = 20
 
-  const [filters, setFilters] = useState(EMPTY_FILTERS)
-  const [applied, setApplied] = useState(filters)
+  const initialFilters = { ...EMPTY_FILTERS, departmentId: searchParams.get('departmentId') || '' }
+  const [filters, setFilters] = useState(initialFilters)
+  const [applied, setApplied] = useState(initialFilters)
 
   useEffect(() => {
     departmentApi.getAll()

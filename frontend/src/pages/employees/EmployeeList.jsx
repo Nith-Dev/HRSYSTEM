@@ -1,9 +1,17 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { employeeApi, departmentApi } from '../../services/api'
+import { employeeApi, departmentApi, officeApi } from '../../services/api'
 import { format } from 'date-fns'
 import toast from 'react-hot-toast'
 import { useAuth } from '../../context/AuthContext'
+
+const EMPTY_FILTERS = {
+  search: '',
+  departmentId: '',
+  officeId: '',
+  gender: '',
+  employeeType: '',
+}
 
 const GENDER_LABEL = { MALE: 'ប្រុស', FEMALE: 'ស្រី' }
 const TYPE_COLOR = {
@@ -17,22 +25,43 @@ export default function EmployeeList() {
   const { user } = useAuth()
   const [employees, setEmployees] = useState([])
   const [departments, setDepartments] = useState([])
+  const [offices, setOffices] = useState([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
   const [page, setPage] = useState(1)
   const limit = 20
 
-  const [filters, setFilters] = useState({
-    search: '',
-    departmentId: '',
-    gender: '',
-    employeeType: '',
-  })
+  const [filters, setFilters] = useState(EMPTY_FILTERS)
   const [applied, setApplied] = useState(filters)
 
   useEffect(() => {
-    departmentApi.getAll().then((r) => setDepartments(r.data))
+    departmentApi.getAll()
+      .then((r) => setDepartments(r.data))
+      .catch(() => toast.error('Could not load departments'))
   }, [])
+
+  useEffect(() => {
+    if (!filters.departmentId) {
+      setOffices([])
+      return
+    }
+
+    officeApi.getAll({ departmentId: filters.departmentId })
+      .then((r) => setOffices(r.data))
+      .catch(() => {
+        setOffices([])
+        toast.error('Could not load offices')
+      })
+  }, [filters.departmentId])
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setPage(1)
+      setApplied(filters)
+    }, 300)
+
+    return () => clearTimeout(timeoutId)
+  }, [filters])
 
   useEffect(() => {
     setLoading(true)
@@ -40,6 +69,11 @@ export default function EmployeeList() {
     Object.keys(params).forEach((k) => !params[k] && delete params[k])
     employeeApi.getAll(params)
       .then((r) => { setEmployees(r.data.data); setTotal(r.data.total) })
+      .catch(() => {
+        setEmployees([])
+        setTotal(0)
+        toast.error('Could not load employees')
+      })
       .finally(() => setLoading(false))
   }, [page, applied])
 
@@ -87,11 +121,22 @@ export default function EmployeeList() {
           <select
             className="input max-w-[200px]"
             value={filters.departmentId}
-            onChange={(e) => setFilters({ ...filters, departmentId: e.target.value })}
+            onChange={(e) => setFilters({ ...filters, departmentId: e.target.value, officeId: '' })}
           >
             <option value="">នាយកដ្ឋានទាំងអស់</option>
             {departments.map((d) => (
               <option key={d.id} value={d.id}>{d.nameKh}</option>
+            ))}
+          </select>
+          <select
+            className="input max-w-[200px]"
+            value={filters.officeId}
+            onChange={(e) => setFilters({ ...filters, officeId: e.target.value })}
+            disabled={!filters.departmentId}
+          >
+            <option value="">All offices</option>
+            {offices.map((o) => (
+              <option key={o.id} value={o.id}>{o.nameKh}</option>
             ))}
           </select>
           <select
@@ -117,7 +162,7 @@ export default function EmployeeList() {
           <button
             type="button"
             className="btn-secondary"
-            onClick={() => { setFilters({ search: '', departmentId: '', gender: '', employeeType: '' }); setPage(1); setApplied({ search: '', departmentId: '', gender: '', employeeType: '' }) }}
+            onClick={() => { setFilters(EMPTY_FILTERS); setPage(1); setApplied(EMPTY_FILTERS) }}
           >
             សម្អាត
           </button>

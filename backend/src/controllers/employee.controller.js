@@ -9,23 +9,32 @@ const include = {
 
 const getAll = async (req, res) => {
   const { search, departmentId, officeId, gender, employeeType, page = 1, limit = 20 } = req.query
-  const skip = (parseInt(page) - 1) * parseInt(limit)
+  const pageNumber = Math.max(parseInt(page, 10) || 1, 1)
+  const pageSize = Math.max(parseInt(limit, 10) || 20, 1)
+  const skip = (pageNumber - 1) * pageSize
 
   const where = {}
+  const searchTerm = typeof search === 'string' ? search.trim() : ''
 
-  if (search) {
+  if (searchTerm) {
     where.OR = [
-      { latinName: { contains: search } },
-      { khmerFirstName: { contains: search } },
-      { khmerLastName: { contains: search } },
-      { badgeNumber: { contains: search } },
-      { phone: { contains: search } },
+      { latinName: { contains: searchTerm } },
+      { latinName: { contains: searchTerm.toUpperCase() } },
+      { khmerFirstName: { contains: searchTerm } },
+      { khmerLastName: { contains: searchTerm } },
+      { badgeNumber: { contains: searchTerm } },
+      { phone: { contains: searchTerm } },
     ]
+
+    const sequentialNo = parseInt(searchTerm, 10)
+    if (!Number.isNaN(sequentialNo)) {
+      where.OR.push({ sequentialNo })
+    }
   }
-  if (departmentId) where.departmentId = parseInt(departmentId)
-  if (officeId) where.officeId = parseInt(officeId)
-  if (gender) where.gender = gender
-  if (employeeType) where.employeeType = employeeType
+  if (departmentId) where.departmentId = parseInt(departmentId, 10)
+  if (officeId) where.officeId = parseInt(officeId, 10)
+  if (gender) where.gender = gender.trim()
+  if (employeeType) where.employeeType = employeeType.trim()
 
   const [employees, total] = await Promise.all([
     prisma.employee.findMany({
@@ -33,12 +42,12 @@ const getAll = async (req, res) => {
       include,
       orderBy: [{ departmentId: 'asc' }, { sequentialNo: 'asc' }],
       skip,
-      take: parseInt(limit),
+      take: pageSize,
     }),
     prisma.employee.count({ where }),
   ])
 
-  res.json({ data: employees, total, page: parseInt(page), limit: parseInt(limit) })
+  res.json({ data: employees, total, page: pageNumber, limit: pageSize })
 }
 
 const getById = async (req, res) => {

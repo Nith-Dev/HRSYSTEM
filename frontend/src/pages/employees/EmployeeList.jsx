@@ -136,7 +136,7 @@ export default function EmployeeList() {
             onChange={(e) => setFilters({ ...filters, officeId: e.target.value })}
             disabled={!filters.departmentId}
           >
-            <option value="">All offices</option>
+            <option value="">ការិយាល័យទាំងអស់</option>
             {offices.map((o) => (
               <option key={o.id} value={o.id}>{o.nameKh}</option>
             ))}
@@ -184,7 +184,7 @@ export default function EmployeeList() {
                 <th className="px-4 py-3 text-left font-medium text-gray-500">មុខតំណែង</th>
                 <th className="px-4 py-3 text-left font-medium text-gray-500">នាយកដ្ឋាន</th>
                 <th className="px-4 py-3 text-left font-medium text-gray-500">ប្រភេទ</th>
-                <th className="px-4 py-3 text-left font-medium text-gray-500">ថ្ងៃបុណ្យ</th>
+                <th className="px-4 py-3 text-left font-medium text-gray-500">ថ្ងៃខែឆ្នាំកំណើត</th>
                 <th className="px-4 py-3 text-right font-medium text-gray-500">សកម្មភាព</th>
               </tr>
             </thead>

@@ -90,6 +90,7 @@ model ActivityLog {
   employeeId   Int?
   employee     Employee? @relation(fields: [employeeId], references: [id], onDelete: SetNull)
   employeeName String
+  employeeDept String?
   userId       Int?
   userName     String?
   changeType   String

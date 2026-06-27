@@ -17,6 +17,7 @@ async function logChanges(oldEmp, newEmp, userId, userName) {
   const base = {
     employeeId: newEmp.id,
     employeeName: `${newEmp.khmerLastName} ${newEmp.khmerFirstName}`,
+    employeeDept: oldEmp.department?.nameKh || null,
     userId,
     userName,
   }
@@ -119,6 +120,7 @@ const create = async (req, res) => {
   await writeLog({
     employeeId: employee.id,
     employeeName: `${employee.khmerLastName} ${employee.khmerFirstName}`,
+    employeeDept: employee.department?.nameKh || null,
     userId: req.user?.id || null,
     userName: req.user?.name || null,
     changeType: 'CREATE',
@@ -148,9 +150,11 @@ const remove = async (req, res) => {
   const employee = await prisma.employee.findUnique({ where: { id } })
 
   if (employee) {
+    const fullEmp = await prisma.employee.findUnique({ where: { id }, include })
     await writeLog({
       employeeId: null,
       employeeName: `${employee.khmerLastName} ${employee.khmerFirstName}`,
+      employeeDept: fullEmp?.department?.nameKh || null,
       userId: req.user?.id || null,
       userName: req.user?.name || null,
       changeType: 'DELETE',

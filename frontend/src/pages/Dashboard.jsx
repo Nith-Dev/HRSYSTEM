@@ -83,15 +83,10 @@ const FIELD_LABEL = {
   employeeType: 'ប្រភេទ',
 }
 
-function timeAgo(dateStr) {
-  const diff = Date.now() - new Date(dateStr).getTime()
-  const mins = Math.floor(diff / 60000)
-  if (mins < 1) return 'ទើបតែ'
-  if (mins < 60) return `${mins} នាទីមុន`
-  const hours = Math.floor(mins / 60)
-  if (hours < 24) return `${hours} ម៉ោងមុន`
-  const days = Math.floor(hours / 24)
-  return `${days} ថ្ងៃមុន`
+function formatDateTime(dateStr) {
+  const d = new Date(dateStr)
+  const pad = (n) => String(n).padStart(2, '0')
+  return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`
 }
 
 export default function Dashboard() {
@@ -226,15 +221,18 @@ export default function Dashboard() {
                         <span className="text-xs text-gray-600">· {FIELD_LABEL[log.field] || log.field}</span>
                       )}
                     </div>
+                    {log.employeeDept && (
+                      <p className="text-xs text-gray-600 mt-0.5">📍 {log.employeeDept}</p>
+                    )}
                     {log.oldValue && log.newValue && (
                       <p className="text-xs text-gray-700 mt-0.5">
-                        <span className="line-through text-gray-500">{log.oldValue}</span>
+                        {log.oldValue}
                         {' → '}
                         <span className="font-medium">{log.newValue}</span>
                       </p>
                     )}
                     <p className="text-xs text-gray-500 mt-0.5">
-                      {log.userName || 'System'} · {timeAgo(log.createdAt)}
+                      {log.userName || 'System'} · {formatDateTime(log.createdAt)}
                     </p>
                   </div>
                 </div>

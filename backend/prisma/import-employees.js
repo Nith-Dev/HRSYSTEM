@@ -1,4 +1,5 @@
 const { PrismaClient } = require('@prisma/client')
+const bcrypt = require('bcryptjs')
 const fs = require('fs')
 const path = require('path')
 
@@ -38,21 +39,42 @@ function officeKey(nameKh, departmentId) {
   return `${departmentId}:${nameKh}`
 }
 
-async function findExistingEmployee(emp, dob) {
-  const badgeNumber = emp.badgeNumber ? String(emp.badgeNumber) : null
+function rankTypeForEmployee(emp) {
+  return emp.employeeType === 'CIVIL' || emp.employeeType === 'CONTRACT' ? 'CIVIL' : 'MILITARY'
+}
 
-  if (badgeNumber) {
-    const existing = await prisma.employee.findFirst({ where: { badgeNumber } })
-    if (existing) return existing
-  }
-
-  return prisma.employee.findFirst({
-    where: {
-      sequentialNo: emp.sequentialNo ?? null,
-      latinName: emp.latinName,
-      dateOfBirth: dob,
+async function ensureLoginUsers() {
+  await prisma.user.upsert({
+    where: { email: 'admin@hrsystem.gov.kh' },
+    update: {},
+    create: {
+      name: 'System Admin',
+      email: 'admin@hrsystem.gov.kh',
+      password: await bcrypt.hash('admin123', 10),
+      role: 'ADMIN',
     },
   })
+
+  await prisma.user.upsert({
+    where: { email: 'hr@hrsystem.gov.kh' },
+    update: {},
+    create: {
+      name: 'HR Officer',
+      email: 'hr@hrsystem.gov.kh',
+      password: await bcrypt.hash('hr123456', 10),
+      role: 'HR',
+    },
+  })
+}
+
+async function resetEmployeeData() {
+  await prisma.$transaction([
+    prisma.employee.deleteMany(),
+    prisma.office.deleteMany(),
+    prisma.department.deleteMany(),
+    prisma.rank.deleteMany(),
+    prisma.educationLevel.deleteMany(),
+  ])
 }
 
 async function main() {
@@ -70,21 +92,22 @@ async function main() {
   }
 
   console.log(`Found ${employees.length} employees to import...`)
+  console.log('Clearing existing employee/reference data...')
 
-  // Load all reference data into maps for fast lookup
-  const ranks      = await prisma.rank.findMany()
-  const depts      = await prisma.department.findMany()
-  const offices    = await prisma.office.findMany()
-  const eduLevels  = await prisma.educationLevel.findMany()
+  await ensureLoginUsers()
+  await resetEmployeeData()
 
-  const rankMap = new Map(ranks.map(r => [r.nameKh, r.id]))
-  const deptMap = new Map(depts.map(d => [d.nameKh, d.id]))
-  const officeMap = new Map(offices.map(o => [officeKey(o.nameKh, o.departmentId), o.id]))
-  const eduMap  = new Map(eduLevels.map(e => [e.nameKh, e.id]))
+  const rankMap = new Map()
+  const deptMap = new Map()
+  const officeMap = new Map()
+  const eduMap  = new Map()
 
   let created = 0
-  let skipped = 0
   let errors  = 0
+  let rankOrder = 1
+  let deptOrder = 1
+  let officeOrder = 1
+  let eduOrder = 1
 
   for (const rawEmp of employees) {
     const emp = normalizeEmployee(rawEmp)
@@ -97,19 +120,13 @@ async function main() {
       requireValue(emp, 'position')
 
       const dob = parseDate(emp.dateOfBirth, 'dateOfBirth', emp)
-      const existing = await findExistingEmployee(emp, dob)
-
-      if (existing) {
-        skipped++
-        continue
-      }
 
       // --- Rank ---
       let rankId = null
       if (emp.rankName) {
         if (!rankMap.has(emp.rankName)) {
           const r = await prisma.rank.create({
-            data: { nameKh: emp.rankName, rankType: 'MILITARY', order: 99 }
+            data: { nameKh: emp.rankName, rankType: rankTypeForEmployee(emp), order: rankOrder++ }
           })
           rankMap.set(emp.rankName, r.id)
           console.log(`  [NEW RANK] ${emp.rankName}`)
@@ -122,7 +139,7 @@ async function main() {
       if (emp.departmentName) {
         if (!deptMap.has(emp.departmentName)) {
           const d = await prisma.department.create({
-            data: { nameKh: emp.departmentName, order: 99 }
+            data: { nameKh: emp.departmentName, order: deptOrder++ }
           })
           deptMap.set(emp.departmentName, d.id)
           console.log(`  [NEW DEPT] ${emp.departmentName}`)
@@ -136,7 +153,7 @@ async function main() {
         const key = officeKey(emp.officeName, departmentId)
         if (!officeMap.has(key)) {
           const o = await prisma.office.create({
-            data: { nameKh: emp.officeName, order: 99, departmentId }
+            data: { nameKh: emp.officeName, order: officeOrder++, departmentId }
           })
           officeMap.set(key, o.id)
           console.log(`  [NEW OFFICE] ${emp.officeName}`)
@@ -149,7 +166,7 @@ async function main() {
       if (emp.educationLevelName) {
         if (!eduMap.has(emp.educationLevelName)) {
           const e = await prisma.educationLevel.create({
-            data: { nameKh: emp.educationLevelName, order: 99 }
+            data: { nameKh: emp.educationLevelName, order: eduOrder++ }
           })
           eduMap.set(emp.educationLevelName, e.id)
           console.log(`  [NEW EDU] ${emp.educationLevelName}`)
@@ -194,7 +211,6 @@ async function main() {
 
   console.log('\n=============================')
   console.log(`  Imported : ${created}`)
-  console.log(`  Skipped  : ${skipped} (already exists)`)
   console.log(`  Errors   : ${errors}`)
   console.log('=============================')
 }

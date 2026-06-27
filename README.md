@@ -12,8 +12,7 @@
 cd backend
 npm install
 npm run db:push      # Create tables (SQLite file: backend/prisma/dev.db)
-npm run db:seed      # Seed initial data (users, ranks, departments)
-npm run db:import    # Optional: import backend/prisma/employees.json
+npm run db:import    # Import backend/prisma/employees.json
 npm run dev          # Start on http://localhost:5000
 ```
 

@@ -2,7 +2,7 @@
   "name": "hrsystem",
   "version": "1.0.0",
   "scripts": {
-    "postinstall": "cd backend && npm install && npx prisma generate",
+    "build": "cd backend && npm install && npx prisma generate",
     "start": "cd backend && node src/index.js"
   },
   "engines": {

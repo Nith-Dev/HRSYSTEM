@@ -1,0 +1,84 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  role      String   @default("VIEWER")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Department {
+  id        Int        @id @default(autoincrement())
+  nameKh    String
+  nameEn    String?
+  order     Int        @default(0)
+  offices   Office[]
+  employees Employee[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Office {
+  id           Int        @id @default(autoincrement())
+  nameKh       String
+  nameEn       String?
+  order        Int        @default(0)
+  departmentId Int
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  employees    Employee[]
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model Rank {
+  id        Int        @id @default(autoincrement())
+  nameKh    String
+  nameEn    String?
+  rankType  String     @default("MILITARY")
+  order     Int        @default(0)
+  employees Employee[]
+}
+
+model EducationLevel {
+  id        Int        @id @default(autoincrement())
+  nameKh    String
+  nameEn    String?
+  order     Int        @default(0)
+  employees Employee[]
+}
+
+model Employee {
+  id               Int             @id @default(autoincrement())
+  sequentialNo     Int?
+  khmerLastName    String
+  khmerFirstName   String
+  latinName        String
+  gender           String          @default("MALE")
+  badgeNumber      String?
+  dateOfBirth      DateTime
+  retirementDate   DateTime?
+  position         String
+  rankId           Int?
+  rank             Rank?           @relation(fields: [rankId], references: [id])
+  departmentId     Int?
+  department       Department?     @relation(fields: [departmentId], references: [id])
+  officeId         Int?
+  office           Office?         @relation(fields: [officeId], references: [id])
+  educationLevelId Int?
+  educationLevel   EducationLevel? @relation(fields: [educationLevelId], references: [id])
+  phone            String?
+  remarks          String?
+  employeeType     String          @default("POLICE")
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+}

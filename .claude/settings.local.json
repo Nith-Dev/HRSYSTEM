@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(New-Item -ItemType Directory -Force -Path \"C:\\\\Users\\\\Nith_Dev\\\\Desktop\\\\HRSYSTEM\\\\frontend\\\\src\\\\context\")",
+      "PowerShell(New-Item -ItemType Directory -Force -Path \"C:\\\\Users\\\\Nith_Dev\\\\Desktop\\\\HRSYSTEM\\\\frontend\\\\src\\\\services\")",
+      "PowerShell(New-Item -ItemType Directory -Force -Path \"C:\\\\Users\\\\Nith_Dev\\\\Desktop\\\\HRSYSTEM\\\\frontend\\\\src\\\\components\")",
+      "PowerShell(New-Item -ItemType Directory -Force -Path \"C:\\\\Users\\\\Nith_Dev\\\\Desktop\\\\HRSYSTEM\\\\frontend\\\\src\\\\pages\\\\employees\")",
+      "PowerShell(New-Item -ItemType Directory -Force -Path \"C:\\\\Users\\\\Nith_Dev\\\\Desktop\\\\HRSYSTEM\\\\frontend\\\\src\\\\pages\\\\departments\")",
+      "PowerShell(New-Item -ItemType Directory -Force -Path \"C:\\\\Users\\\\Nith_Dev\\\\Desktop\\\\HRSYSTEM\\\\frontend\\\\src\\\\pages\\\\settings\")",
+      "PowerShell(Set-Location \"C:\\\\Users\\\\Nith_Dev\\\\Desktop\\\\HRSYSTEM\\\\backend\"; Start-Process powershell -ArgumentList \"-NoExit\", \"-Command\", \"Set-Location 'C:\\\\Users\\\\Nith_Dev\\\\Desktop\\\\HRSYSTEM\\\\backend'; npm run dev\" -WindowStyle Normal; Start-Sleep -Seconds 3; Write-Output \"Backend window launched\")"
+    ]
+  }
+}

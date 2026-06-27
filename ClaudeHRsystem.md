@@ -8,9 +8,9 @@
 
 ## 1. Project Overview
 
-A minimal HR system designed to digitize the monthly staff list (បញ្ជីបច្ចុប្បន្នភាព) of the General Commissariat. Version 1 covers CRUD operations only — no payroll or attendance tracking yet.
+A minimal HR system designed to digitize the monthly staff list (បញ្ជីបច្ចុប្បន្នភាព) of the General Commissariat. Version 1 covers CRUD operations, activity tracking, and a live dashboard — no payroll or attendance tracking yet.
 
-**Total staff in source document:** 419 employees (48 female)
+**Total staff imported:** 419 employees (48 female)
 - នគរបាល (Police): 333 (36 female)
 - រដ្ឋបាលស៊ីវិល (Civil servants): 80 (09 female)
 - ជាប់កិច្ចសន្យា (Contract staff): 06 (03 female)
@@ -26,16 +26,14 @@ A minimal HR system designed to digitize the monthly staff list (បញ្ជី
 | Frontend Styling | Tailwind CSS | 3.x |
 | Frontend Routing | React Router DOM | 6.x |
 | Frontend HTTP Client | Axios | 1.x |
-| Frontend Forms | React Hook Form | 7.x |
 | Frontend Notifications | React Hot Toast | 2.x |
 | Date Utilities | date-fns | 4.x |
 | Khmer Font | Noto Sans Khmer (Google Fonts) | — |
 | Backend Runtime | Node.js + Express.js | 4.x |
 | ORM | Prisma | 5.x |
-| Database | SQLite (dev) → PostgreSQL (prod) | — |
+| Database | SQLite (local) | — |
 | Authentication | JWT (jsonwebtoken) | 9.x |
 | Password Hashing | bcryptjs | 2.x |
-| CORS | cors | 2.x |
 
 ---
 
@@ -44,56 +42,42 @@ A minimal HR system designed to digitize the monthly staff list (បញ្ជី
 **Local development:**
 ```
 ┌─────────────────────────────────────────────────────┐
-│                    BROWSER                          │
-│         http://localhost:5173                       │
-│                                                     │
+│  BROWSER  —  http://localhost:5173                  │
 │  React + Vite + Tailwind CSS                        │
-│  ├── AuthContext (JWT stored in localStorage)       │
-│  ├── React Router (client-side routing)             │
-│  └── Axios (API calls with Bearer token)            │
+│  AuthContext (JWT in localStorage) + Axios          │
 └──────────────────────┬──────────────────────────────┘
-                       │ HTTP / REST API
+                       │ HTTP REST API
                        ▼
 ┌─────────────────────────────────────────────────────┐
-│                   BACKEND                           │
-│         http://localhost:5000                       │
-│                                                     │
+│  BACKEND  —  http://localhost:5000                  │
 │  Node.js + Express.js                               │
-│  ├── JWT Auth Middleware                            │
-│  ├── Role-based Access Control                      │
-│  └── REST Controllers (CRUD)                        │
+│  JWT Auth Middleware + Role-based Access Control    │
 └──────────────────────┬──────────────────────────────┘
                        │ Prisma ORM
                        ▼
 ┌─────────────────────────────────────────────────────┐
-│                  DATABASE                           │
-│                                                     │
-│  SQLite  →  backend/prisma/dev.db                   │
+│  DATABASE  —  backend/prisma/dev.db  (SQLite)       │
 └─────────────────────────────────────────────────────┘
 ```
 
 **Production:**
 ```
 ┌─────────────────────────────────────────────────────┐
-│                    BROWSER                          │
-│   https://frontend-swart-chi-49.vercel.app          │
-│                                                     │
-│  React (built by Vite, hosted on Vercel)            │
+│  BROWSER                                            │
+│  https://frontend-swart-chi-49.vercel.app           │
+│  React (built by Vite, hosted on Vercel free tier)  │
 └──────────────────────┬──────────────────────────────┘
-                       │ HTTPS / REST API
+                       │ HTTPS REST API
                        ▼
 ┌─────────────────────────────────────────────────────┐
-│                   BACKEND                           │
-│   https://hrsystem-fs4d.onrender.com                │
-│                                                     │
-│  Node.js + Express.js (Docker on Render free tier)  │
+│  BACKEND                                            │
+│  https://hrsystem-fs4d.onrender.com                 │
+│  Node.js + Express (Docker on Render free tier)     │
 └──────────────────────┬──────────────────────────────┘
                        │ Prisma ORM
                        ▼
 ┌─────────────────────────────────────────────────────┐
-│                  DATABASE                           │
-│                                                     │
-│  SQLite (ephemeral on Render — resets on deploy)    │
+│  DATABASE  —  SQLite (ephemeral on Render)          │
 │  Upgrade path: Render PostgreSQL or Supabase        │
 └─────────────────────────────────────────────────────┘
 ```
@@ -106,12 +90,14 @@ A minimal HR system designed to digitize the monthly staff list (បញ្ជី
 HRSYSTEM/
 ├── ClaudeHRsystem.md               ← This file
 ├── README.md                       ← Quick start guide
+├── Dockerfile                      ← Render backend build
+├── package.json                    ← Root (node engine spec for Render)
+├── .gitignore
 │
 ├── backend/
 │   ├── prisma/
-│   │   ├── schema.prisma           ← Database schema (all models)
-│   │   ├── seed.js                 ← Initial data (users, ranks, depts)
-│   │   └── dev.db                  ← SQLite database file (auto-generated)
+│   │   ├── schema.prisma           ← All database models
+│   │   └── seed.js                 ← Initial data (users, ranks, departments)
 │   ├── src/
 │   │   ├── index.js                ← Express server entry point
 │   │   ├── lib/
@@ -121,6 +107,7 @@ HRSYSTEM/
 │   │   ├── controllers/
 │   │   │   ├── auth.controller.js
 │   │   │   ├── employee.controller.js
+│   │   │   ├── activityLog.controller.js
 │   │   │   ├── department.controller.js
 │   │   │   ├── office.controller.js
 │   │   │   ├── rank.controller.js
@@ -128,30 +115,32 @@ HRSYSTEM/
 │   │   └── routes/
 │   │       ├── auth.routes.js
 │   │       ├── employee.routes.js
+│   │       ├── activityLog.routes.js
 │   │       ├── department.routes.js
 │   │       ├── office.routes.js
 │   │       ├── rank.routes.js
 │   │       └── education.routes.js
-│   ├── .env                        ← DATABASE_URL, JWT_SECRET, PORT
+│   ├── .env.example
 │   └── package.json
 │
 └── frontend/
-    ├── index.html                  ← Khmer lang, Noto Sans Khmer font
+    ├── index.html
     ├── vite.config.js
     ├── tailwind.config.js
     ├── postcss.config.js
+    ├── .env.example
     ├── package.json
     └── src/
-        ├── main.jsx                ← React DOM entry point
+        ├── main.jsx
         ├── App.jsx                 ← Router + AuthProvider + all routes
-        ├── index.css               ← Tailwind + custom component classes
+        ├── index.css               ← Tailwind base + component classes
         ├── context/
         │   └── AuthContext.jsx     ← Global auth state (user, login, logout)
         ├── services/
-        │   └── api.js              ← Axios instance + all API functions
+        │   └── api.js              ← Axios instance + all API calls
         ├── components/
-        │   ├── Layout.jsx          ← App shell (sidebar + header + outlet)
-        │   ├── Sidebar.jsx         ← Navigation sidebar (Khmer labels)
+        │   ├── Layout.jsx          ← App shell (sidebar + header)
+        │   ├── Sidebar.jsx         ← Navigation (Khmer labels)
         │   └── PrivateRoute.jsx    ← Redirect to /login if not authenticated
         └── pages/
             ├── Login.jsx
@@ -178,65 +167,45 @@ HRSYSTEM/
 | email | String (unique) | Login email |
 | password | String | bcrypt hashed |
 | role | String | ADMIN / HR / VIEWER |
-| createdAt | DateTime | Auto |
-| updatedAt | DateTime | Auto |
 
 ### Employees
 | Column | Type | Notes |
 |---|---|---|
 | id | Int (PK) | Auto-increment |
-| sequentialNo | Int? | លរ. from PDF |
+| sequentialNo | Int? | លរ. from original PDF |
 | khmerLastName | String | នាមត្រកូល |
 | khmerFirstName | String | នាមខ្លួន |
 | latinName | String | e.g. EM VICHET |
 | gender | String | MALE / FEMALE |
-| badgeNumber | String? | អត្តលេខ |
+| badgeNumber | String? | អត្តលេខ (exact match search) |
 | dateOfBirth | DateTime | ថ្ងៃខែឆ្នាំកំណើត |
-| retirementDate | DateTime? | ថ្ងៃចូលនិវត្តន៍ (DOB + 60 years) |
+| retirementDate | DateTime? | DOB + 60 years (auto-calculated) |
 | position | String | មុខតំណែងបច្ចុប្បន្ន |
 | rankId | Int? | FK → Rank |
 | departmentId | Int? | FK → Department |
 | officeId | Int? | FK → Office |
 | educationLevelId | Int? | FK → EducationLevel |
 | phone | String? | លេខទូរស័ព្ទ |
-| remarks | String? | ផ្សេងៗ (supervisor name) |
+| remarks | String? | ផ្សេងៗ |
 | employeeType | String | POLICE / CIVIL / CONTRACT |
+
+### ActivityLog
+| Column | Type | Notes |
+|---|---|---|
+| id | Int (PK) | Auto-increment |
+| employeeId | Int? | FK → Employee (nullable, preserved after deletion) |
+| employeeName | String | Stored at time of change |
+| employeeDept | String? | Department name at time of change |
+| userId | Int? | FK → User who made the change |
+| userName | String? | Stored at time of change |
+| changeType | String | PROMOTION / TRANSFER / UPDATE / CREATE / DELETE |
+| field | String? | Which field changed (position, rank, department, office, employeeType) |
+| oldValue | String? | Human-readable previous value |
+| newValue | String? | Human-readable new value |
 | createdAt | DateTime | Auto |
-| updatedAt | DateTime | Auto |
 
-### Departments
-| Column | Type | Notes |
-|---|---|---|
-| id | Int (PK) | |
-| nameKh | String | Khmer name |
-| nameEn | String? | English name |
-| order | Int | Display order |
-
-### Offices
-| Column | Type | Notes |
-|---|---|---|
-| id | Int (PK) | |
-| nameKh | String | |
-| nameEn | String? | |
-| order | Int | |
-| departmentId | Int (FK) | Parent department |
-
-### Ranks
-| Column | Type | Notes |
-|---|---|---|
-| id | Int (PK) | |
-| nameKh | String | e.g. ឯកឧត្តម |
-| nameEn | String? | e.g. His Excellency |
-| rankType | String | MILITARY / CIVIL |
-| order | Int | Display order |
-
-### EducationLevels
-| Column | Type | Notes |
-|---|---|---|
-| id | Int (PK) | |
-| nameKh | String | e.g. អនុបណ្ឌិត |
-| nameEn | String? | e.g. Master's Degree |
-| order | Int | |
+### Departments / Offices / Ranks / EducationLevels
+Standard lookup tables — id, nameKh, nameEn, order, with appropriate FK relations.
 
 ---
 
@@ -245,51 +214,26 @@ HRSYSTEM/
 ### Auth
 | Method | Endpoint | Access | Description |
 |---|---|---|---|
-| POST | /api/auth/login | Public | Login, returns JWT token |
-| GET | /api/auth/me | All roles | Get current logged-in user |
+| POST | /api/auth/login | Public | Login, returns JWT |
+| GET | /api/auth/me | All | Get current user |
 
 ### Employees
 | Method | Endpoint | Access | Description |
 |---|---|---|---|
-| GET | /api/employees | All roles | List with search, filter, pagination |
-| GET | /api/employees/stats | All roles | Dashboard statistics |
-| GET | /api/employees/:id | All roles | Get one employee |
-| POST | /api/employees | ADMIN, HR | Create employee |
-| PUT | /api/employees/:id | ADMIN, HR | Update employee |
-| DELETE | /api/employees/:id | ADMIN only | Delete employee |
+| GET | /api/employees | All | List — search, filter, paginate |
+| GET | /api/employees/stats | All | Dashboard counts |
+| GET | /api/employees/:id | All | Single employee |
+| POST | /api/employees | ADMIN, HR | Create (logs CREATE) |
+| PUT | /api/employees/:id | ADMIN, HR | Update (logs diffs) |
+| DELETE | /api/employees/:id | ADMIN | Delete (logs DELETE) |
 
-### Departments
+### Activity Logs
 | Method | Endpoint | Access | Description |
 |---|---|---|---|
-| GET | /api/departments | All roles | List all (includes offices + count) |
-| GET | /api/departments/:id | All roles | Get one |
-| POST | /api/departments | ADMIN, HR | Create |
-| PUT | /api/departments/:id | ADMIN, HR | Update |
-| DELETE | /api/departments/:id | ADMIN only | Delete |
+| GET | /api/activity-logs?limit=20 | All | Recent activity feed |
 
-### Offices
-| Method | Endpoint | Access | Description |
-|---|---|---|---|
-| GET | /api/offices?departmentId= | All roles | List (filterable by dept) |
-| POST | /api/offices | ADMIN, HR | Create |
-| PUT | /api/offices/:id | ADMIN, HR | Update |
-| DELETE | /api/offices/:id | ADMIN only | Delete |
-
-### Ranks
-| Method | Endpoint | Access | Description |
-|---|---|---|---|
-| GET | /api/ranks | All roles | List all |
-| POST | /api/ranks | ADMIN only | Create |
-| PUT | /api/ranks/:id | ADMIN only | Update |
-| DELETE | /api/ranks/:id | ADMIN only | Delete |
-
-### Education Levels
-| Method | Endpoint | Access | Description |
-|---|---|---|---|
-| GET | /api/education-levels | All roles | List all |
-| POST | /api/education-levels | ADMIN only | Create |
-| PUT | /api/education-levels/:id | ADMIN only | Update |
-| DELETE | /api/education-levels/:id | ADMIN only | Delete |
+### Departments / Offices / Ranks / Education Levels
+Standard CRUD — GET (all roles), POST/PUT (ADMIN+HR), DELETE (ADMIN only).
 
 ---
 
@@ -298,62 +242,70 @@ HRSYSTEM/
 | Feature | ADMIN | HR | VIEWER |
 |---|---|---|---|
 | View employees | ✅ | ✅ | ✅ |
-| Add employee | ✅ | ✅ | ❌ |
-| Edit employee | ✅ | ✅ | ❌ |
+| Add / Edit employee | ✅ | ✅ | ❌ |
 | Delete employee | ✅ | ❌ | ❌ |
-| Manage departments | ✅ | ✅ | View only |
-| Manage offices | ✅ | ✅ | View only |
-| Manage ranks | ✅ | ❌ | View only |
-| Manage education levels | ✅ | ❌ | View only |
-| View dashboard | ✅ | ✅ | ✅ |
+| Manage departments & offices | ✅ | ✅ | View only |
+| Manage ranks & education | ✅ | ❌ | View only |
+| View dashboard & activity | ✅ | ✅ | ✅ |
 
 ---
 
 ## 8. Pages & Features
 
-### Login Page (`/login`)
-- Email + password form
-- JWT stored in localStorage on success
-- Khmer error messages
+### Login (`/login`)
+- Email + password, JWT stored in localStorage, Khmer error messages
 
 ### Dashboard (`/`)
-- 4 stat cards: total headcount, Police count, Civil count, Contract count — each with colored icon box and percentage pill
-- **Gender breakdown card**: SVG donut chart (no library) — blue for male, pink for female, total count in center, Khmer label "នាក់"
-- **Department breakdown**: 2-column grid of clickable rows (no scroll) — each row links to `/employees?departmentId=X` to pre-filter the employee list, sorted by count descending
+- **4 stat cards** — total, Police, Civil, Contract (with % pill)
+- **Gender card** — SVG donut chart (blue = male, pink = female), no chart library
+- **Department list** — 2-column clickable grid, each row links to `/employees?departmentId=X`
+- **Activity feed** — last 15 changes, shows employee name + department, change type icon, old → new value, admin name, date + time (`DD/MM/YYYY HH:MM`)
 
 ### Employee List (`/employees`)
 - Paginated table (20 per page)
-- Search by name (Khmer or Latin), badge number, phone
-- Filter by department, gender, employee type
-- Office filter dropdown labeled "ការិយាល័យទាំងអស់"
-- Shows rank, position, department, type badge, date of birth (column: "ថ្ងៃខែឆ្នាំកំណើត")
-- Accepts `?departmentId=` URL query param to pre-apply department filter (used by Dashboard links)
-- Add / Edit / Delete actions (role-restricted)
+- Search: name (Khmer or Latin) and badge number (exact match only)
+- Filter: department, office (ការិយាល័យទាំងអស់), gender, employee type
+- Accepts `?departmentId=` URL param (used by Dashboard department links)
+- Column header: "ថ្ងៃខែឆ្នាំកំណើត"
 
 ### Employee Add/Edit Form (`/employees/new`, `/employees/:id/edit`)
-- Personal info: Khmer name, Latin name, gender, badge number, DOB, phone
-- Auto-calculates retirement date from DOB (DOB + 60 years)
-- Job info: employee type, rank (grouped Military/Civil), position (with datalist suggestions), department, office (filtered by department), education level, remarks
-- Latin name auto-uppercased
+- Personal: Khmer name, Latin name (auto-uppercase), gender, badge, DOB, phone
+- Retirement date auto-calculated (DOB + 60 years)
+- Job: type, rank grouped as "មន្រ្តីនគរបាល" / "ស៊ីវិល", position (datalist suggestions), department, office, education level
+- Every save automatically writes to ActivityLog
 
 ### Employee Detail (`/employees/:id`)
-- Full profile view in two-column layout
-- Edit and Delete buttons (role-restricted)
+- Two-column profile view, Edit + Delete (role-restricted)
 
 ### Departments (`/departments`)
-- Collapsible accordion: Department → Offices
-- Employee count per department and office
-- Add/Edit/Delete departments and offices via modal dialogs
+- Accordion: Department → Offices, employee count per level
+- Add/Edit/Delete via modals
 
 ### Settings (`/settings`)
-- Manage ranks (ADMIN only) — name in Khmer + English, type (Military/Civil)
-- Manage education levels (ADMIN only)
+- Ranks: Khmer + English name, type badge shows "មន្រ្តីនគរបាល" or "ស៊ីវិល"
+- Education levels
 
 ---
 
-## 9. Pre-seeded Data
+## 9. Activity Tracking
 
-### Departments (7 from PDF)
+Every employee create, update, and delete is automatically recorded. Tracked change types:
+
+| changeType | Trigger | Icon |
+|---|---|---|
+| PROMOTION | position or rank changed | 📈 |
+| TRANSFER | department or office changed | 🏢 |
+| UPDATE | employeeType changed | ✏️ |
+| CREATE | new employee added | ➕ |
+| DELETE | employee removed | 🗑️ |
+
+Name, department, and admin are stored at time of change so the log remains readable even after an employee is deleted or transferred.
+
+---
+
+## 10. Pre-seeded Data
+
+### Departments (7)
 1. ថ្នាក់ដឹកនាំ អគ្គាធិការដ្ឋាន
 2. នាយកដ្ឋានរដ្ឋបាល
 3. នាយកដ្ឋានអធិការកិច្ចកិច្ចការរដ្ឋបាល
@@ -362,13 +314,13 @@ HRSYSTEM/
 6. នាយកដ្ឋានអធិការកិច្ចកិច្ចការនគរបាលរាជធានីភ្នំពេញ
 7. នាយកដ្ឋានទទួលពាក្យបណ្ឹង និងអង្កេតស្រាវជ្រាវកិច្ចការនគរបាល
 
-### Military Ranks (12)
+### Ranks — មន្រ្តីនគរបាល (12)
 ឯកឧត្តម, ឧត្តមសេនីយ៍ឯក, ឧត្តមសេនីយ៍ទោ, ឧត្តមសេនីយ៍ត្រី,
 វរសេនីយ៍ឯក, វរសេនីយ៍ទោ, វរសេនីយ៍ត្រី,
 អនុសេនីយ៍ឯក, អនុសេនីយ៍ទោ, អនុសេនីយ៍ត្រី,
 ព្រឹទ្ធបុរសឯក, ព្រឹទ្ធបុរសទោ
 
-### Civil Ranks (3)
+### Ranks — ស៊ីវិល (3)
 លោក, លោកស្រី, ព្រឹទ្ធបុរស
 
 ### Education Levels (12)
@@ -376,7 +328,7 @@ HRSYSTEM/
 ទុតិយភូមិ, មធ្យម.កំរិត២, ថ្នាក់ទី១២, ថ្នាក់ទី១២ងីម,
 ថ្នាក់ទី១០ងីម, ថ្នាក់ទី៩, ថ្នាក់ទី៨ងីម, ថ្នាក់ទី៥
 
-### Default Users (2)
+### Default Users
 | Email | Password | Role |
 |---|---|---|
 | admin@hrsystem.gov.kh | admin123 | ADMIN |
@@ -384,46 +336,30 @@ HRSYSTEM/
 
 ---
 
-## 10. How to Run
+## 11. How to Run Locally
 
 ```bash
 # Terminal 1 — Backend
 cd backend
-npm run dev        # Starts on http://localhost:5000
+npm run dev        # http://localhost:5000
 
 # Terminal 2 — Frontend
 cd frontend
-npm run dev        # Starts on http://localhost:5173
+npm run dev        # http://localhost:5173
 ```
 
-### First-time Setup (already done)
+### First-time setup
 ```bash
 cd backend
-npm run db:push    # Creates SQLite tables
-npm run db:seed    # Inserts initial data
+npx prisma db push   # Create tables
+node prisma/seed.js  # Insert initial data
 ```
-
----
-
-## 11. What's NOT in v1 (Future Roadmap)
-
-| Feature | Status |
-|---|---|
-| Payroll calculation | Planned v2 |
-| Attendance tracking | Planned v2 |
-| Leave / time-off requests | Planned v2 |
-| Export to PDF (monthly report format) | Planned v2 |
-| Export to Excel | Planned v2 |
-| User management UI | Planned v2 |
-| Bulk import from PDF/Excel | ✅ DONE — 419 employees imported |
-| Audit log (who changed what) | Planned v3 |
-| PostgreSQL migration (production) | When deploying |
 
 ---
 
 ## 12. Environment Variables
 
-**backend/.env** (local development)
+**backend/.env**
 ```
 DATABASE_URL="file:./dev.db"
 JWT_SECRET="hrsystem_jwt_secret_key_2026"
@@ -431,61 +367,54 @@ PORT=5000
 FRONTEND_URL="http://localhost:5173"
 ```
 
-**backend/.env.example** and **frontend/.env.example** are committed to git as templates.
+**frontend/.env**
+```
+VITE_API_URL=http://localhost:5000/api
+```
+
+See `.env.example` files in each folder for templates.
 
 ---
 
 ## 13. Production Deployment
 
 ### Live URLs
-| Service | URL |
+| | URL |
 |---|---|
-| **Frontend** | https://frontend-swart-chi-49.vercel.app |
-| **Backend** | https://hrsystem-fs4d.onrender.com |
+| Frontend | https://frontend-swart-chi-49.vercel.app |
+| Backend | https://hrsystem-fs4d.onrender.com |
 
-### Frontend — Vercel
-- Platform: [vercel.com](https://vercel.com) — free tier, auto-deploys on push to `main`
-- Project: `manith-devs-projects/frontend`
-- Build: Vite auto-detected, output `dist/`
-- Environment variable set via Vercel dashboard / API:
-  ```
-  VITE_API_URL=https://hrsystem-fs4d.onrender.com/api
-  ```
+### Frontend — Vercel (free tier)
+- Auto-deploys on push to `main`
+- Build: Vite, output `dist/`
+- Env var: `VITE_API_URL=https://hrsystem-fs4d.onrender.com/api`
+- Manual deploy: `cd frontend && npx vercel deploy --prod`
 
-### Backend — Render
-- Platform: [render.com](https://render.com) — free tier (spins down after 15 min inactivity)
-- Service ID: `srv-d8vr7v8k1i2s73f2l250`
-- Build uses **Dockerfile** at repo root
-- Environment variables set on Render:
-  ```
-  DATABASE_URL=file:./dev.db
-  JWT_SECRET=hrsystem_prod_8f3k2p9x7qmz4nv6rtwj5yb1dce0aul
-  FRONTEND_URL=https://frontend-swart-chi-49.vercel.app
-  ```
+### Backend — Render (free tier)
+- Auto-deploys on push to `main` via Dockerfile at repo root
+- Env vars set on Render dashboard: `DATABASE_URL`, `JWT_SECRET`, `FRONTEND_URL`
+- Free tier sleeps after 15 min inactivity — first wake takes ~30 sec
 
-### Dockerfile (repo root)
-```dockerfile
-FROM node:18-slim
-RUN apt-get update -y && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
-WORKDIR /app/backend
-COPY backend/package*.json ./
-COPY backend/prisma ./prisma/
-RUN npm install
-COPY backend/src ./src/
-EXPOSE 8080
-CMD ["node", "src/index.js"]
-```
-
-### To redeploy
-- **Frontend**: push to `main` — Vercel auto-deploys, or run `vercel --prod` from `frontend/`
-- **Backend**: push to `main` — Render auto-deploys from GitHub
-
-### Important notes
-- SQLite `dev.db` on Render is **ephemeral** — data resets on each redeploy. Upgrade to a persistent disk or migrate to PostgreSQL for production data safety.
-- Render free tier sleeps after 15 min — first request after sleep takes ~30 seconds to wake up.
-- To migrate to PostgreSQL: change `provider = "sqlite"` → `"postgresql"` in `backend/prisma/schema.prisma` and update `DATABASE_URL`.
+### Important
+- SQLite on Render is **ephemeral** — data resets on each redeploy
+- Upgrade path for persistent data: add a Render disk, or migrate to PostgreSQL
 
 ---
 
-*Document generated: June 2026*
-*System built with Claude Sonnet 4.6*
+## 14. Future Roadmap
+
+| Feature | Status |
+|---|---|
+| Bulk import from PDF/Excel | ✅ Done — 419 employees |
+| Activity log (who changed what) | ✅ Done |
+| Export to PDF (monthly report) | Planned v2 |
+| Export to Excel | Planned v2 |
+| Payroll calculation | Planned v2 |
+| Attendance tracking | Planned v2 |
+| Leave / time-off requests | Planned v2 |
+| User management UI | Planned v2 |
+| PostgreSQL migration | When needed |
+
+---
+
+*Last updated: June 2026 — Claude Sonnet 4.6*

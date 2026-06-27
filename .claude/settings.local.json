@@ -21,7 +21,12 @@
       "PowerShell(railway login)",
       "PowerShell(vercel login)",
       "PowerShell(Invoke-WebRequest -Uri \"https://hrsystem-fs4d.onrender.com/api/auth/login\" -Method POST -ContentType \"application/json\" -Body '{\"email\":\"admin@hrsystem.gov.kh\",\"password\":\"admin123\"}' 2>&1)",
-      "PowerShell(Get-ChildItem \"$env:APPDATA\\\\com.vercel.cli\" -Recurse -ErrorAction SilentlyContinue | Select-Object FullName)"
+      "PowerShell(Get-ChildItem \"$env:APPDATA\\\\com.vercel.cli\" -Recurse -ErrorAction SilentlyContinue | Select-Object FullName)",
+      "PowerShell(git add frontend/src/index.css frontend/src/pages/Dashboard.jsx frontend/src/pages/employees/EmployeeList.jsx frontend/src/pages/employees/EmployeeDetail.jsx frontend/src/pages/employees/EmployeeForm.jsx frontend/src/pages/departments/DepartmentList.jsx frontend/src/pages/settings/Settings.jsx frontend/src/pages/Login.jsx frontend/src/components/Layout.jsx)",
+      "PowerShell(git push origin main)",
+      "Bash(npx vercel *)",
+      "Bash(npx prisma *)",
+      "Bash(git rm *)"
     ]
   }
 }

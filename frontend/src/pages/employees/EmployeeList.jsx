@@ -103,7 +103,7 @@ export default function EmployeeList() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-bold text-gray-900">បញ្ជីមន្ត្រី</h2>
-          <p className="text-gray-500 text-sm">សរុប {total} នាក់</p>
+          <p className="text-gray-700 text-sm">សរុប {total} នាក់</p>
         </div>
         {['ADMIN', 'HR'].includes(user?.role) && (
           <Link to="/employees/new" className="btn-primary">
@@ -176,30 +176,30 @@ export default function EmployeeList() {
           <table className="w-full text-sm">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                <th className="px-4 py-3 text-left font-medium text-gray-500">លរ.</th>
-                <th className="px-4 py-3 text-left font-medium text-gray-500">ឈ្មោះ (ខ្មែរ)</th>
-                <th className="px-4 py-3 text-left font-medium text-gray-500">Latin Name</th>
-                <th className="px-4 py-3 text-left font-medium text-gray-500">ភេទ</th>
-                <th className="px-4 py-3 text-left font-medium text-gray-500">អត្តលេខ</th>
-                <th className="px-4 py-3 text-left font-medium text-gray-500">មុខតំណែង</th>
-                <th className="px-4 py-3 text-left font-medium text-gray-500">នាយកដ្ឋាន</th>
-                <th className="px-4 py-3 text-left font-medium text-gray-500">ប្រភេទ</th>
-                <th className="px-4 py-3 text-left font-medium text-gray-500">ថ្ងៃខែឆ្នាំកំណើត</th>
-                <th className="px-4 py-3 text-right font-medium text-gray-500">សកម្មភាព</th>
+                <th className="px-4 py-3 text-left font-medium text-gray-700">លរ.</th>
+                <th className="px-4 py-3 text-left font-medium text-gray-700">ឈ្មោះ (ខ្មែរ)</th>
+                <th className="px-4 py-3 text-left font-medium text-gray-700">Latin Name</th>
+                <th className="px-4 py-3 text-left font-medium text-gray-700">ភេទ</th>
+                <th className="px-4 py-3 text-left font-medium text-gray-700">អត្តលេខ</th>
+                <th className="px-4 py-3 text-left font-medium text-gray-700">មុខតំណែង</th>
+                <th className="px-4 py-3 text-left font-medium text-gray-700">នាយកដ្ឋាន</th>
+                <th className="px-4 py-3 text-left font-medium text-gray-700">ប្រភេទ</th>
+                <th className="px-4 py-3 text-left font-medium text-gray-700">ថ្ងៃខែឆ្នាំកំណើត</th>
+                <th className="px-4 py-3 text-right font-medium text-gray-700">សកម្មភាព</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {loading ? (
-                <tr><td colSpan={10} className="text-center py-12 text-gray-400">កំពុងផ្ទុក...</td></tr>
+                <tr><td colSpan={10} className="text-center py-12 text-gray-600">កំពុងផ្ទុក...</td></tr>
               ) : employees.length === 0 ? (
-                <tr><td colSpan={10} className="text-center py-12 text-gray-400">មិនមានទិន្នន័យ</td></tr>
+                <tr><td colSpan={10} className="text-center py-12 text-gray-600">មិនមានទិន្នន័យ</td></tr>
               ) : (
                 employees.map((emp, i) => (
                   <tr key={emp.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-4 py-3 text-gray-500">{(page - 1) * limit + i + 1}</td>
+                    <td className="px-4 py-3 text-gray-700">{(page - 1) * limit + i + 1}</td>
                     <td className="px-4 py-3">
                       <div className="font-medium">{emp.khmerLastName} {emp.khmerFirstName}</div>
-                      {emp.rank && <div className="text-xs text-gray-400">{emp.rank.nameKh}</div>}
+                      {emp.rank && <div className="text-xs text-gray-600">{emp.rank.nameKh}</div>}
                     </td>
                     <td className="px-4 py-3 text-gray-700">{emp.latinName}</td>
                     <td className="px-4 py-3">{GENDER_LABEL[emp.gender]}</td>
@@ -209,7 +209,7 @@ export default function EmployeeList() {
                     <td className="px-4 py-3">
                       <span className={`badge ${TYPE_COLOR[emp.employeeType]}`}>{TYPE_LABEL[emp.employeeType]}</span>
                     </td>
-                    <td className="px-4 py-3 text-gray-500">
+                    <td className="px-4 py-3 text-gray-700">
                       {emp.dateOfBirth ? format(new Date(emp.dateOfBirth), 'dd/MM/yyyy') : '—'}
                     </td>
                     <td className="px-4 py-3 text-right">
@@ -236,7 +236,7 @@ export default function EmployeeList() {
         </div>
         {totalPages > 1 && (
           <div className="px-4 py-3 border-t border-gray-100 flex items-center justify-between">
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-700">
               បង្ហាញ {(page - 1) * limit + 1}–{Math.min(page * limit, total)} នៃ {total}
             </p>
             <div className="flex gap-2">

@@ -9,7 +9,7 @@ function Modal({ title, onClose, children }) {
       <div className="bg-white rounded-xl shadow-xl w-full max-w-md">
         <div className="flex items-center justify-between px-6 py-4 border-b">
           <h3 className="font-semibold text-gray-900">{title}</h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
+          <button onClick={onClose} className="text-gray-600 hover:text-gray-900 text-xl leading-none">&times;</button>
         </div>
         <div className="p-6">{children}</div>
       </div>
@@ -83,7 +83,7 @@ export default function DepartmentList() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-bold text-gray-900">នាយកដ្ឋាន & ការិយាល័យ</h2>
-          <p className="text-gray-500 text-sm">គ្រប់គ្រងរចនាសម្ព័ន្ធ</p>
+          <p className="text-gray-700 text-sm">គ្រប់គ្រងរចនាសម្ព័ន្ធ</p>
         </div>
         {canEdit && (
           <div className="flex gap-2">
@@ -111,15 +111,15 @@ export default function DepartmentList() {
                   <span className="text-lg">{isOpen ? '▼' : '▶'}</span>
                   <div>
                     <p className="font-medium text-gray-900">{dept.nameKh}</p>
-                    {dept.nameEn && <p className="text-xs text-gray-400">{dept.nameEn}</p>}
+                    {dept.nameEn && <p className="text-xs text-gray-600">{dept.nameEn}</p>}
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="badge bg-blue-100 text-blue-700">{dept._count?.employees ?? 0} នាក់</span>
-                  <span className="text-xs text-gray-400">{deptOffices.length} ការិយាល័យ</span>
+                  <span className="text-xs text-gray-600">{deptOffices.length} ការិយាល័យ</span>
                   {canEdit && (
                     <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
-                      <button onClick={() => openDeptEdit(dept)} className="text-xs text-gray-500 hover:text-gray-700">កែ</button>
+                      <button onClick={() => openDeptEdit(dept)} className="text-xs text-gray-700 hover:text-gray-900">កែ</button>
                       {canDelete && <button onClick={() => deleteDept(dept.id)} className="text-xs text-red-500 hover:text-red-700">លុប</button>}
                     </div>
                   )}
@@ -128,21 +128,21 @@ export default function DepartmentList() {
               {isOpen && (
                 <div className="border-t border-gray-100">
                   {deptOffices.length === 0 ? (
-                    <p className="text-gray-400 text-sm text-center py-4">មិនមានការិយាល័យ</p>
+                    <p className="text-gray-600 text-sm text-center py-4">មិនមានការិយាល័យ</p>
                   ) : (
                     <table className="w-full text-sm">
                       <tbody>
                         {deptOffices.map((o) => (
                           <tr key={o.id} className="border-b last:border-0 hover:bg-gray-50">
                             <td className="px-6 py-3 pl-12 text-gray-700">📁 {o.nameKh}</td>
-                            <td className="px-4 py-3 text-gray-400 text-xs">{o.nameEn}</td>
+                            <td className="px-4 py-3 text-gray-600 text-xs">{o.nameEn}</td>
                             <td className="px-4 py-3">
                               <span className="badge bg-gray-100 text-gray-600">{o._count?.employees ?? 0} នាក់</span>
                             </td>
                             <td className="px-4 py-3 text-right">
                               {canEdit && (
                                 <div className="flex gap-2 justify-end">
-                                  <button onClick={() => openOfficeEdit(o)} className="text-xs text-gray-500 hover:text-gray-700">កែ</button>
+                                  <button onClick={() => openOfficeEdit(o)} className="text-xs text-gray-700 hover:text-gray-900">កែ</button>
                                   {canDelete && <button onClick={() => deleteOffice(o.id)} className="text-xs text-red-500 hover:text-red-700">លុប</button>}
                                 </div>
                               )}

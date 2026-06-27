@@ -7,7 +7,7 @@ import toast from 'react-hot-toast'
 
 const Field = ({ label, value }) => (
   <div className="py-3 border-b border-gray-50 last:border-0 grid grid-cols-3 gap-2">
-    <dt className="text-sm text-gray-500">{label}</dt>
+    <dt className="text-sm text-gray-700">{label}</dt>
     <dd className="text-sm font-medium text-gray-900 col-span-2">{value || '—'}</dd>
   </div>
 )
@@ -49,10 +49,10 @@ export default function EmployeeDetail() {
         <div>
           <button onClick={() => navigate('/employees')} className="text-sm text-blue-600 hover:underline mb-1">← ត្រឡប់</button>
           <h2 className="text-xl font-bold text-gray-900">
-            {employee.rank?.nameKh && <span className="text-gray-500 font-normal mr-2">{employee.rank.nameKh}</span>}
+            {employee.rank?.nameKh && <span className="text-gray-700 font-normal mr-2">{employee.rank.nameKh}</span>}
             {employee.khmerLastName} {employee.khmerFirstName}
           </h2>
-          <p className="text-gray-500 text-sm">{employee.latinName}</p>
+          <p className="text-gray-700 text-sm">{employee.latinName}</p>
         </div>
         <div className="flex gap-2">
           {['ADMIN', 'HR'].includes(user?.role) && (

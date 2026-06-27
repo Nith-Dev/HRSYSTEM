@@ -120,7 +120,7 @@ export default function EmployeeForm() {
     <div className="max-w-4xl">
       <div className="mb-6">
         <h2 className="text-xl font-bold text-gray-900">{isEdit ? 'កែប្រែ' : 'បន្ថែម'}មន្ត្រី</h2>
-        <p className="text-gray-500 text-sm">បំពេញព័ត៌មានខាងក្រោម</p>
+        <p className="text-gray-700 text-sm">បំពេញព័ត៌មានខាងក្រោម</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">

@@ -65,16 +65,16 @@ function ManageList({ title, items, onSave, onDelete, fields, canEdit, canDelete
               <>
                 <div className="flex-1">
                   <span className="text-sm text-gray-900">{item.nameKh}</span>
-                  {item.nameEn && <span className="text-xs text-gray-400 ml-2">({item.nameEn})</span>}
+                  {item.nameEn && <span className="text-xs text-gray-600 ml-2">({item.nameEn})</span>}
                   {item.rankType && <span className={`badge ml-2 ${item.rankType === 'MILITARY' ? 'bg-indigo-100 text-indigo-700' : 'bg-green-100 text-green-700'}`}>{item.rankType === 'MILITARY' ? 'មន្រ្តីនគរបាល' : 'ស៊ីវិល'}</span>}
                 </div>
-                {canEdit && <button className="text-xs text-gray-500 hover:text-gray-700" onClick={() => startEdit(item)}>កែ</button>}
+                {canEdit && <button className="text-xs text-gray-700 hover:text-gray-900" onClick={() => startEdit(item)}>កែ</button>}
                 {canDel && <button className="text-xs text-red-500 hover:text-red-700" onClick={() => onDelete(item.id)}>លុប</button>}
               </>
             )}
           </div>
         ))}
-        {items.length === 0 && <p className="text-gray-400 text-sm text-center py-4">មិនទាន់មីទិន្នន័យ</p>}
+        {items.length === 0 && <p className="text-gray-600 text-sm text-center py-4">មិនទាន់មីទិន្នន័យ</p>}
       </div>
     </div>
   )
@@ -127,7 +127,7 @@ export default function Settings() {
     <div className="space-y-6 max-w-3xl">
       <div>
         <h2 className="text-xl font-bold text-gray-900">ការកំណត់</h2>
-        <p className="text-gray-500 text-sm">គ្រប់គ្រងទិន្នន័យជំនួយ</p>
+        <p className="text-gray-700 text-sm">គ្រប់គ្រងទិន្នន័យជំនួយ</p>
       </div>
 
       <ManageList

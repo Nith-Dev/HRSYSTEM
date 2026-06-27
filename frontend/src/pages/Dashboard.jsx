@@ -71,13 +71,13 @@ const StatCard = ({ label, value, total, bg, icon }) => {
           {icon}
         </div>
         {pct !== null && (
-          <span className="text-xs text-gray-400 bg-gray-50 border border-gray-100 px-2 py-0.5 rounded-full font-medium">
+          <span className="text-xs text-gray-600 bg-gray-50 border border-gray-100 px-2 py-0.5 rounded-full font-medium">
             {pct}%
           </span>
         )}
       </div>
       <p className="text-3xl font-bold text-gray-900 leading-none">{value ?? '—'}</p>
-      <p className="text-sm text-gray-500 mt-2">{label}</p>
+      <p className="text-sm text-gray-700 mt-2">{label}</p>
     </div>
   )
 }
@@ -111,7 +111,7 @@ export default function Dashboard() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">ផ្ទាំងគ្រប់គ្រង</h1>
-          <p className="text-sm text-gray-400 mt-0.5">ព័ត៌មានសង្ខេបស្ថានភាពមន្ត្រី</p>
+          <p className="text-sm text-gray-600 mt-0.5">ព័ត៌មានសង្ខេបស្ថានភាពមន្ត្រី</p>
         </div>
         <Link to="/employees" className="btn-primary">
           មើលបញ្ជីមន្ត្រី
@@ -131,7 +131,7 @@ export default function Dashboard() {
 
         {/* Gender */}
         <div className="card p-6">
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-5">ចំនួនតាមភេទ</p>
+          <p className="text-xs font-semibold text-gray-600 uppercase tracking-widest mb-5">ចំនួនតាមភេទ</p>
 
           <DonutChart male={male} female={female} total={total} />
 
@@ -141,19 +141,19 @@ export default function Dashboard() {
                 <div className="w-2.5 h-2.5 rounded-full bg-blue-500 shrink-0" />
                 <span className="text-gray-600">ប្រុស</span>
               </div>
-              <span className="font-semibold text-gray-900">{male} <span className="text-xs text-gray-400 font-normal">({malePct}%)</span></span>
+              <span className="font-semibold text-gray-900">{male} <span className="text-xs text-gray-600 font-normal">({malePct}%)</span></span>
             </div>
             <div className="flex items-center justify-between text-sm">
               <div className="flex items-center gap-2">
                 <div className="w-2.5 h-2.5 rounded-full bg-pink-400 shrink-0" />
                 <span className="text-gray-600">ស្រី</span>
               </div>
-              <span className="font-semibold text-gray-900">{female} <span className="text-xs text-gray-400 font-normal">({femalePct}%)</span></span>
+              <span className="font-semibold text-gray-900">{female} <span className="text-xs text-gray-600 font-normal">({femalePct}%)</span></span>
             </div>
           </div>
 
           <div className="mt-5 pt-4 border-t border-gray-100 flex items-center justify-between">
-            <span className="text-xs text-gray-400">សរុបប្រុស + ស្រី</span>
+            <span className="text-xs text-gray-600">សរុបប្រុស + ស្រី</span>
             <span className="text-sm font-semibold text-gray-700">{total} នាក់</span>
           </div>
         </div>
@@ -161,12 +161,12 @@ export default function Dashboard() {
         {/* Department list */}
         <div className="card p-6 lg:col-span-2">
           <div className="flex items-center justify-between mb-5">
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest">ចំនួនតាមនាយកដ្ឋាន</p>
-            <span className="text-xs text-gray-400">{sortedDepts.length} នាយកដ្ឋាន</span>
+            <p className="text-xs font-semibold text-gray-600 uppercase tracking-widest">ចំនួនតាមនាយកដ្ឋាន</p>
+            <span className="text-xs text-gray-600">{sortedDepts.length} នាយកដ្ឋាន</span>
           </div>
 
           {sortedDepts.length === 0 ? (
-            <p className="text-sm text-gray-400">មិនទាន់មានទិន្នន័យ</p>
+            <p className="text-sm text-gray-600">មិនទាន់មានទិន្នន័យ</p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8">
               {sortedDepts.map((d) => (
@@ -181,7 +181,7 @@ export default function Dashboard() {
                       {d.name}
                     </span>
                   </div>
-                  <div className="flex items-center gap-1 ml-3 shrink-0 text-gray-400 group-hover:text-blue-500 transition-colors">
+                  <div className="flex items-center gap-1 ml-3 shrink-0 text-gray-600 group-hover:text-blue-500 transition-colors">
                     <span className="text-sm font-semibold text-gray-800 group-hover:text-blue-600">{d.count}</span>
                     {chevron}
                   </div>

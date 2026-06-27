@@ -30,7 +30,7 @@ export default function Login() {
             🏛️
           </div>
           <h1 className="text-xl font-bold text-gray-900">អគ្គាធិការដ្ឋាន</h1>
-          <p className="text-gray-500 text-sm mt-1">ប្រព័ន្ធគ្រប់គ្រងមន្ត្រី</p>
+          <p className="text-gray-700 text-sm mt-1">ប្រព័ន្ធគ្រប់គ្រងមន្ត្រី</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">

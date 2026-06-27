@@ -12,7 +12,7 @@ export default function Layout() {
         <header className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between sticky top-0 z-10">
           <div />
           <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-600">{user?.email}</span>
+            <span className="text-sm text-gray-900">{user?.email}</span>
             <button
               onClick={logout}
               className="text-sm text-red-600 hover:text-red-700 font-medium"

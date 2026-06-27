@@ -116,8 +116,9 @@ const getById = async (req, res) => {
 const create = async (req, res) => {
   const data = buildEmployeeData(req.body)
   const employee = await prisma.employee.create({ data, include })
+  res.status(201).json(employee)
 
-  await writeLog({
+  writeLog({
     employeeId: employee.id,
     employeeName: `${employee.khmerLastName} ${employee.khmerFirstName}`,
     employeeDept: employee.department?.nameKh || null,
@@ -127,42 +128,46 @@ const create = async (req, res) => {
     field: null,
     oldValue: null,
     newValue: null,
-  })
-
-  res.status(201).json(employee)
+  }).catch(console.error)
 }
 
 const update = async (req, res) => {
   const id = parseInt(req.params.id)
-  const oldEmployee = await prisma.employee.findUnique({ where: { id }, include })
-  if (!oldEmployee) return res.status(404).json({ message: 'Employee not found' })
+
+  // Fetch old state before update (for diff logging — failure here doesn't block save)
+  const oldEmployee = await prisma.employee.findUnique({ where: { id }, include }).catch(() => null)
 
   const data = buildEmployeeData(req.body)
   const employee = await prisma.employee.update({ where: { id }, data, include })
 
-  await logChanges(oldEmployee, employee, req.user?.id || null, req.user?.name || null)
-
+  // Respond immediately — logging is fire-and-forget, never blocks the save
   res.json(employee)
+
+  if (oldEmployee) {
+    logChanges(oldEmployee, employee, req.user?.id || null, req.user?.name || null)
+      .catch(console.error)
+  }
 }
 
 const remove = async (req, res) => {
   const id = parseInt(req.params.id)
-  const employee = await prisma.employee.findUnique({ where: { id } })
 
-  if (employee) {
-    const fullEmp = await prisma.employee.findUnique({ where: { id }, include })
-    await writeLog({
-      employeeId: null,
-      employeeName: `${employee.khmerLastName} ${employee.khmerFirstName}`,
-      employeeDept: fullEmp?.department?.nameKh || null,
-      userId: req.user?.id || null,
-      userName: req.user?.name || null,
-      changeType: 'DELETE',
-      field: null,
-      oldValue: null,
-      newValue: null,
+  prisma.employee.findUnique({ where: { id }, include })
+    .then((emp) => {
+      if (!emp) return
+      return writeLog({
+        employeeId: null,
+        employeeName: `${emp.khmerLastName} ${emp.khmerFirstName}`,
+        employeeDept: emp.department?.nameKh || null,
+        userId: req.user?.id || null,
+        userName: req.user?.name || null,
+        changeType: 'DELETE',
+        field: null,
+        oldValue: null,
+        newValue: null,
+      })
     })
-  }
+    .catch(console.error)
 
   await prisma.employee.delete({ where: { id } })
   res.json({ message: 'Employee deleted' })

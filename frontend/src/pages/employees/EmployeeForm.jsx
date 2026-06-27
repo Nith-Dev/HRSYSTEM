@@ -180,7 +180,7 @@ export default function EmployeeForm() {
               <label className="label">ឋានៈ/លក្ខន្តិកៈ</label>
               <select className="input" value={form.rankId} onChange={set('rankId')}>
                 <option value="">-- ជ្រើសឋានៈ --</option>
-                <optgroup label="យោធា">
+                <optgroup label="មន្រ្តីនគរបាល">
                   {ranks.filter(r => r.rankType === 'MILITARY').map(r => (
                     <option key={r.id} value={r.id}>{r.nameKh}</option>
                   ))}

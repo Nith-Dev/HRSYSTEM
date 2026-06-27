@@ -66,7 +66,7 @@ function ManageList({ title, items, onSave, onDelete, fields, canEdit, canDelete
                 <div className="flex-1">
                   <span className="text-sm text-gray-900">{item.nameKh}</span>
                   {item.nameEn && <span className="text-xs text-gray-400 ml-2">({item.nameEn})</span>}
-                  {item.rankType && <span className={`badge ml-2 ${item.rankType === 'MILITARY' ? 'bg-indigo-100 text-indigo-700' : 'bg-green-100 text-green-700'}`}>{item.rankType === 'MILITARY' ? 'យោធា' : 'ស៊ីវិល'}</span>}
+                  {item.rankType && <span className={`badge ml-2 ${item.rankType === 'MILITARY' ? 'bg-indigo-100 text-indigo-700' : 'bg-green-100 text-green-700'}`}>{item.rankType === 'MILITARY' ? 'មន្រ្តីនគរបាល' : 'ស៊ីវិល'}</span>}
                 </div>
                 {canEdit && <button className="text-xs text-gray-500 hover:text-gray-700" onClick={() => startEdit(item)}>កែ</button>}
                 {canDel && <button className="text-xs text-red-500 hover:text-red-700" onClick={() => onDelete(item.id)}>លុប</button>}
@@ -140,7 +140,7 @@ export default function Settings() {
         fields={[
           { key: 'nameKh', label: 'ឈ្មោះ (ខ្មែរ)', default: '' },
           { key: 'nameEn', label: 'English', default: '' },
-          { key: 'rankType', label: 'ប្រភេទ', type: 'select', default: 'MILITARY', options: [{ value: 'MILITARY', label: 'យោធា' }, { value: 'CIVIL', label: 'ស៊ីវិល' }] },
+          { key: 'rankType', label: 'ប្រភេទ', type: 'select', default: 'MILITARY', options: [{ value: 'MILITARY', label: 'មន្រ្តីនគរបាល' }, { value: 'CIVIL', label: 'ស៊ីវិល' }] },
         ]}
       />
 

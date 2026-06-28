@@ -4,13 +4,15 @@ frontend/node_modules
 
 # Environment files — never commit secrets
 .env
+**/.env
 .env.local
 .env.*.local
 
-# SQLite database — contains real data, exclude from git
+# Database files — contain real data, never commit
 backend/prisma/dev.db
 backend/prisma/dev.db-journal
 backend/prisma/employees.json
+backend/prisma/backup.json
 
 # Build output
 frontend/dist

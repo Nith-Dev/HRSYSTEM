@@ -16,4 +16,4 @@ COPY backend/src ./src/
 
 EXPOSE 8080
 
-CMD ["node", "src/index.js"]
+CMD ["sh", "-c", "node_modules/.bin/prisma db push --skip-generate && node src/index.js"]

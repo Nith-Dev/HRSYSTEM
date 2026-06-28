@@ -18,6 +18,7 @@ app.use('/api/offices', require('./routes/office.routes'))
 app.use('/api/ranks', require('./routes/rank.routes'))
 app.use('/api/education-levels', require('./routes/education.routes'))
 app.use('/api/activity-logs', require('./routes/activityLog.routes'))
+app.use('/api/users', require('./routes/user.routes'))
 
 app.use((err, req, res, next) => {
   console.error(err)

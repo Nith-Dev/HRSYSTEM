@@ -93,11 +93,13 @@ export default function Dashboard() {
   const [stats, setStats] = useState(null)
   const [activities, setActivities] = useState([])
   const [loading, setLoading] = useState(true)
+  const [actPage, setActPage] = useState(0)
+  const PAGE_SIZE = 5
 
   useEffect(() => {
     Promise.all([
       employeeApi.getStats(),
-      activityApi.getRecent(15),
+      activityApi.getRecent(50),
     ]).then(([statsRes, actRes]) => {
       setStats(statsRes.data)
       setActivities(actRes.data)
@@ -199,46 +201,89 @@ export default function Dashboard() {
       <div className="card p-6">
         <div className="flex items-center justify-between mb-5">
           <p className="text-xs font-semibold text-gray-600 uppercase tracking-widest">សកម្មភាពចុងក្រោយ</p>
-          <span className="text-xs text-gray-600">{activities.length} ធាតុ</span>
+          {activities.length > 0 && (
+            <span className="text-xs text-gray-500">
+              {actPage * PAGE_SIZE + 1}–{Math.min((actPage + 1) * PAGE_SIZE, activities.length)} / {activities.length}
+            </span>
+          )}
         </div>
 
         {activities.length === 0 ? (
           <p className="text-sm text-gray-600 py-4 text-center">មិនទាន់មានសកម្មភាព — ការកែប្រែណាមួយនឹងបង្ហាញនៅទីនេះ</p>
         ) : (
-          <div className="divide-y divide-gray-50">
-            {activities.map((log) => {
-              const cfg = CHANGE_CONFIG[log.changeType] || CHANGE_CONFIG.UPDATE
-              return (
-                <div key={log.id} className="flex items-start gap-3 py-3 first:pt-0 last:pb-0">
-                  <div className={`w-8 h-8 rounded-full ${cfg.bg} flex items-center justify-center text-base shrink-0 mt-0.5`}>
-                    {cfg.icon}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-sm font-semibold text-gray-900">{log.employeeName}</span>
-                      <span className={`text-xs font-medium ${cfg.text}`}>{cfg.label}</span>
-                      {log.field && (
-                        <span className="text-xs text-gray-600">· {FIELD_LABEL[log.field] || log.field}</span>
-                      )}
+          <>
+            <div className="divide-y divide-gray-50">
+              {activities.slice(actPage * PAGE_SIZE, (actPage + 1) * PAGE_SIZE).map((log) => {
+                const cfg = CHANGE_CONFIG[log.changeType] || CHANGE_CONFIG.UPDATE
+                return (
+                  <div key={log.id} className="flex items-start gap-3 py-3 first:pt-0 last:pb-0">
+                    <div className={`w-8 h-8 rounded-full ${cfg.bg} flex items-center justify-center text-base shrink-0 mt-0.5`}>
+                      {cfg.icon}
                     </div>
-                    {log.employeeDept && (
-                      <p className="text-xs text-gray-600 mt-0.5">📍 {log.employeeDept}</p>
-                    )}
-                    {log.oldValue && log.newValue && (
-                      <p className="text-xs text-gray-700 mt-0.5">
-                        {log.oldValue}
-                        {' → '}
-                        <span className="font-medium">{log.newValue}</span>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-sm font-semibold text-gray-900">{log.employeeName}</span>
+                        <span className={`text-xs font-medium ${cfg.text}`}>{cfg.label}</span>
+                        {log.field && (
+                          <span className="text-xs text-gray-600">· {FIELD_LABEL[log.field] || log.field}</span>
+                        )}
+                      </div>
+                      {log.employeeDept && (
+                        <p className="text-xs text-gray-600 mt-0.5">📍 {log.employeeDept}</p>
+                      )}
+                      {log.oldValue && log.newValue && (
+                        <p className="text-xs text-gray-700 mt-0.5">
+                          {log.oldValue}{' → '}
+                          <span className="font-medium">{log.newValue}</span>
+                        </p>
+                      )}
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        {log.userName || 'System'} · {formatDateTime(log.createdAt)}
                       </p>
-                    )}
-                    <p className="text-xs text-gray-500 mt-0.5">
-                      {log.userName || 'System'} · {formatDateTime(log.createdAt)}
-                    </p>
+                    </div>
                   </div>
+                )
+              })}
+            </div>
+
+            {activities.length > PAGE_SIZE && (
+              <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
+                <button
+                  onClick={() => setActPage(p => p - 1)}
+                  disabled={actPage === 0}
+                  className="flex items-center gap-1 text-xs text-gray-600 hover:text-gray-900 disabled:opacity-30 disabled:cursor-not-allowed transition-opacity"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                  ថ្មីជាង
+                </button>
+                <div className="flex gap-1">
+                  {Array.from({ length: Math.ceil(activities.length / PAGE_SIZE) }).map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setActPage(i)}
+                      className={`w-6 h-6 rounded text-xs font-medium transition-colors ${
+                        i === actPage ? 'bg-blue-600 text-white' : 'text-gray-500 hover:bg-gray-100'
+                      }`}
+                    >
+                      {i + 1}
+                    </button>
+                  ))}
                 </div>
-              )
-            })}
-          </div>
+                <button
+                  onClick={() => setActPage(p => p + 1)}
+                  disabled={(actPage + 1) * PAGE_SIZE >= activities.length}
+                  className="flex items-center gap-1 text-xs text-gray-600 hover:text-gray-900 disabled:opacity-30 disabled:cursor-not-allowed transition-opacity"
+                >
+                  ចាស់ជាង
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

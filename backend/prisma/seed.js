@@ -5,6 +5,13 @@ const path = require('path')
 const prisma = new PrismaClient()
 
 async function main() {
+  // Skip if already seeded — runs on every Render startup so must be idempotent and fast
+  const existing = await prisma.department.count()
+  if (existing > 0) {
+    console.log(`Seed skipped — database already contains ${existing} departments.`)
+    return
+  }
+
   const backup = JSON.parse(fs.readFileSync(path.join(__dirname, 'backup.json'), 'utf-8'))
 
   console.log('Seeding departments...')

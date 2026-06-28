@@ -167,7 +167,7 @@ export default function Dashboard() {
         {/* Department list */}
         <div className="card p-6 lg:col-span-2">
           <div className="flex items-center justify-between mb-5">
-            <p className="text-xs font-semibold text-gray-600 uppercase tracking-widest">ចំនួនតាមនាយកដ្ឋាន</p>
+            <p className="text-xs font-semibold text-gray-600 uppercase tracking-widest">ចំនួនមន្រ្តីតាមនាយកដ្ឋាន</p>
             <span className="text-xs text-gray-600">{sortedDepts.length} នាយកដ្ឋាន</span>
           </div>
           {sortedDepts.length === 0 ? (

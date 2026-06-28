@@ -26,7 +26,14 @@
       "PowerShell(git push origin main)",
       "Bash(npx vercel *)",
       "Bash(npx prisma *)",
-      "Bash(git rm *)"
+      "Bash(git rm *)",
+      "Bash(DATABASE_URL=file:./prisma/dev.db node -e ' *)",
+      "Bash(DATABASE_URL=file:__CMDSUB_OUTPUT__/prisma/dev.db node -e ' *)",
+      "Bash(DATABASE_URL=file:///c/Users/Nith_Dev/Desktop/HRSYSTEM/backend/prisma/dev.db node -e ' *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "PowerShell(Test-NetConnection -ComputerName \"db.flwyhrxivbqobcyriyyf.supabase.co\" -Port 5432 -WarningAction SilentlyContinue)",
+      "Bash(git push *)"
     ]
   }
 }

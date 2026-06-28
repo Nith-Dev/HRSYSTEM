@@ -23,8 +23,12 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-900 to-blue-700 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-8">
+    <div
+      className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden"
+      style={{ backgroundImage: 'url(/emblem.png)', backgroundSize: 'cover', backgroundPosition: 'center' }}
+    >
+      <div className="absolute inset-0 bg-black/40" />
+      <div className="relative z-10 bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl w-full max-w-md p-8">
         <div className="text-center mb-8">
           <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl">
             🏛️
@@ -60,6 +64,10 @@ export default function Login() {
             {loading ? 'កំពុងចូល...' : 'ចូលប្រើប្រាស់'}
           </button>
         </form>
+
+        <p className="text-center text-xs text-gray-500 mt-6">
+          អភិវឌ្ឍន៍និងគាំទ្រផ្នែកបច្ចេកទេសដោយ លោក ញ៉េប ម៉ានិត
+        </p>
       </div>
     </div>
   )

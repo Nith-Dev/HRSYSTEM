@@ -5,11 +5,12 @@ const navItems = [
   { to: '/', label: 'ផ្ទាំងគ្រប់គ្រង', icon: '🏠', exact: true },
   { to: '/employees', label: 'មន្ត្រី', icon: '👤' },
   { to: '/departments', label: 'នាយកដ្ឋាន', icon: '🏢' },
-  { to: '/settings', label: 'ការកំណត់', icon: '⚙️' },
+  { to: '/settings', label: 'ការកំណត់', icon: '⚙️', roles: ['ADMIN', 'HR'] },
 ]
 
 export default function Sidebar() {
   const { user } = useAuth()
+  const visibleItems = navItems.filter(item => !item.roles || item.roles.includes(user?.role))
 
   return (
     <aside className="w-64 min-h-screen bg-blue-900 text-white flex flex-col fixed left-0 top-0">
@@ -19,7 +20,7 @@ export default function Sidebar() {
       </div>
 
       <nav className="flex-1 p-4 space-y-1">
-        {navItems.map((item) => (
+        {visibleItems.map((item) => (
           <NavLink
             key={item.to}
             to={item.to}

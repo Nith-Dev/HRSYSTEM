@@ -329,11 +329,14 @@ Name, department, and admin are stored at time of change so the log remains read
 ទុតិយភូមិ, មធ្យម.កំរិត២, ថ្នាក់ទី១២, ថ្នាក់ទី១២ងីម,
 ថ្នាក់ទី១០ងីម, ថ្នាក់ទី៩, ថ្នាក់ទី៨ងីម, ថ្នាក់ទី៥
 
-### Default Users
-| Email | Password | Role |
-|---|---|---|
-| admin@hrsystem.gov.kh | admin123 | ADMIN |
-| hr@hrsystem.gov.kh | hr123456 | HR |
+### Default Users (pre-seeded)
+| Name | Email | Password | Role (UI) |
+|---|---|---|---|
+| System Admin | admin@hrsystem.gov.kh | admin123 | Admin |
+| HR Officer | hr@hrsystem.gov.kh | hr123456 | Staff |
+
+> Additional accounts can be created via **Settings → គ្រប់គ្រងគណនីអ្នកប្រើ** (Admin only).
+> Roles: **Admin** = full access, **Staff** = create/edit employees (no delete), **Viewer** = read-only (no Settings).
 
 ---
 

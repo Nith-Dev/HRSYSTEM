@@ -31,7 +31,7 @@ A minimal HR system designed to digitize the monthly staff list (បញ្ជី
 | Khmer Font | Noto Sans Khmer (Google Fonts) | — |
 | Backend Runtime | Node.js + Express.js | 4.x |
 | ORM | Prisma | 5.x |
-| Database | SQLite (local) | — |
+| Database | PostgreSQL (Supabase) | — |
 | Authentication | JWT (jsonwebtoken) | 9.x |
 | Password Hashing | bcryptjs | 2.x |
 
@@ -71,14 +71,15 @@ A minimal HR system designed to digitize the monthly staff list (បញ្ជី
                        ▼
 ┌─────────────────────────────────────────────────────┐
 │  BACKEND                                            │
-│  https://hrsystem-fs4d.onrender.com                 │
-│  Node.js + Express (Docker on Render free tier)     │
+│  https://hrsystem-nkcm.onrender.com                 │
+│  Node.js + Express (native Node on Render free tier)│
 └──────────────────────┬──────────────────────────────┘
                        │ Prisma ORM
                        ▼
 ┌─────────────────────────────────────────────────────┐
-│  DATABASE  —  SQLite (ephemeral on Render)          │
-│  Upgrade path: Render PostgreSQL or Supabase        │
+│  DATABASE                                           │
+│  PostgreSQL on Supabase (ap-southeast-2, Sydney)    │
+│  Persistent — survives all redeploys                │
 └─────────────────────────────────────────────────────┘
 ```
 
@@ -90,14 +91,14 @@ A minimal HR system designed to digitize the monthly staff list (បញ្ជី
 HRSYSTEM/
 ├── ClaudeHRsystem.md               ← This file
 ├── README.md                       ← Quick start guide
-├── Dockerfile                      ← Render backend build
 ├── package.json                    ← Root (node engine spec for Render)
 ├── .gitignore
 │
 ├── backend/
 │   ├── prisma/
 │   │   ├── schema.prisma           ← All database models
-│   │   └── seed.js                 ← Initial data (users, ranks, departments)
+│   │   ├── seed.js                 ← Seeds Supabase on first deploy (skips if data exists)
+│   │   └── backup.json             ← Full export: 7 depts, 419 employees, ref data
 │   ├── src/
 │   │   ├── index.js                ← Express server entry point
 │   │   ├── lib/
@@ -359,18 +360,32 @@ node prisma/seed.js  # Insert initial data
 
 ## 12. Environment Variables
 
-**backend/.env**
+**backend/.env** (local development)
 ```
-DATABASE_URL="file:./dev.db"
+DATABASE_URL="postgresql://postgres.PROJECT_REF:PASSWORD@aws-1-ap-southeast-2.pooler.supabase.com:5432/postgres"
 JWT_SECRET="hrsystem_jwt_secret_key_2026"
 PORT=5000
 FRONTEND_URL="http://localhost:5173"
 ```
 
-**frontend/.env**
+**frontend/.env** (local development)
 ```
 VITE_API_URL=http://localhost:5000/api
 ```
+
+**On Render (production)** — set via Render dashboard environment variables:
+```
+DATABASE_URL=postgresql://postgres.PROJECT_REF:PASSWORD@aws-1-ap-southeast-2.pooler.supabase.com:5432/postgres
+JWT_SECRET=<your-secret>
+FRONTEND_URL=https://frontend-swart-chi-49.vercel.app
+```
+
+**On Vercel (production)** — set via Vercel dashboard or CLI:
+```
+VITE_API_URL=https://hrsystem-nkcm.onrender.com/api
+```
+
+> Note: Use the Supabase **session pooler** (port 5432 on the pooler hostname, NOT port 5432 on the direct `db.` hostname). Port 5432 direct is blocked. The transaction pooler (port 6543) is incompatible with Prisma's prepared statements.
 
 See `.env.example` files in each folder for templates.
 
@@ -382,22 +397,33 @@ See `.env.example` files in each folder for templates.
 | | URL |
 |---|---|
 | Frontend | https://frontend-swart-chi-49.vercel.app |
-| Backend | https://hrsystem-fs4d.onrender.com |
+| Backend | https://hrsystem-nkcm.onrender.com |
+| Database | Supabase PostgreSQL — project ref `flwyhrxivbqobcyriyyf`, region ap-southeast-2 (Sydney) |
 
 ### Frontend — Vercel (free tier)
 - Auto-deploys on push to `main`
 - Build: Vite, output `dist/`
-- Env var: `VITE_API_URL=https://hrsystem-fs4d.onrender.com/api`
+- Env var: `VITE_API_URL=https://hrsystem-nkcm.onrender.com/api`
 - Manual deploy: `cd frontend && npx vercel deploy --prod`
 
-### Backend — Render (free tier)
-- Auto-deploys on push to `main` via Dockerfile at repo root
+### Backend — Render (free tier, native Node.js)
+- Auto-deploys on push to `main`
+- **Root Directory:** `backend` (set in Render service settings)
+- **Build command:** `npm install && npx prisma generate && node prisma/seed.js`
+- **Start command:** `node src/index.js`
 - Env vars set on Render dashboard: `DATABASE_URL`, `JWT_SECRET`, `FRONTEND_URL`
 - Free tier sleeps after 15 min inactivity — first wake takes ~30 sec
 
+### Database — Supabase PostgreSQL (persistent)
+- Data **survives all redeploys** — no more data loss
+- Schema applied manually via Supabase SQL Editor (run `npx prisma migrate diff --from-empty --to-schema-datamodel prisma/schema.prisma --script` to generate SQL)
+- `seed.js` runs on every Render start but skips immediately if data already exists (idempotent)
+- For future schema changes: generate SQL diff with `prisma migrate diff` and run in Supabase SQL Editor
+
 ### Important
-- SQLite on Render is **ephemeral** — data resets on each redeploy
-- Upgrade path for persistent data: add a Render disk, or migrate to PostgreSQL
+- **Do not use** the Supabase direct connection hostname (`db.PROJECT.supabase.co:5432`) — blocked by Render's network
+- **Use** the session pooler: `aws-1-ap-southeast-2.pooler.supabase.com:5432` (no `pgbouncer=true` needed)
+- The transaction pooler (port 6543) is **incompatible** with Prisma's prepared statements — use session pooler (port 5432)
 
 ---
 
@@ -413,7 +439,7 @@ See `.env.example` files in each folder for templates.
 | Attendance tracking | Planned v2 |
 | Leave / time-off requests | Planned v2 |
 | User management UI | Planned v2 |
-| PostgreSQL migration | When needed |
+| PostgreSQL migration | ✅ Done — Supabase (June 2026) |
 
 ---
 

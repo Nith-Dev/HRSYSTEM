@@ -115,13 +115,13 @@ export default function EmployeeList() {
       <div className="card p-4">
         <form onSubmit={handleSearch} className="flex flex-wrap gap-3">
           <input
-            className="input max-w-xs"
+            className="input w-full sm:w-auto sm:max-w-xs"
             placeholder="ស្វែងរកតាមឈ្មោះ, លេខសម្គាល់..."
             value={filters.search}
             onChange={(e) => setFilters({ ...filters, search: e.target.value })}
           />
           <select
-            className="input max-w-[200px]"
+            className="input w-full sm:w-auto sm:max-w-[200px]"
             value={filters.departmentId}
             onChange={(e) => setFilters({ ...filters, departmentId: e.target.value, officeId: '' })}
           >
@@ -131,7 +131,7 @@ export default function EmployeeList() {
             ))}
           </select>
           <select
-            className="input max-w-[200px]"
+            className="input w-full sm:w-auto sm:max-w-[200px]"
             value={filters.officeId}
             onChange={(e) => setFilters({ ...filters, officeId: e.target.value })}
             disabled={!filters.departmentId}
@@ -142,7 +142,7 @@ export default function EmployeeList() {
             ))}
           </select>
           <select
-            className="input max-w-[150px]"
+            className="input w-full sm:w-auto sm:max-w-[150px]"
             value={filters.gender}
             onChange={(e) => setFilters({ ...filters, gender: e.target.value })}
           >
@@ -151,7 +151,7 @@ export default function EmployeeList() {
             <option value="FEMALE">ស្រី</option>
           </select>
           <select
-            className="input max-w-[150px]"
+            className="input w-full sm:w-auto sm:max-w-[150px]"
             value={filters.employeeType}
             onChange={(e) => setFilters({ ...filters, employeeType: e.target.value })}
           >
@@ -160,14 +160,16 @@ export default function EmployeeList() {
             <option value="CIVIL">ស៊ីវិល</option>
             <option value="CONTRACT">កិច្ចសន្យា</option>
           </select>
-          <button type="submit" className="btn-primary">ស្វែងរក</button>
-          <button
-            type="button"
-            className="btn-secondary"
-            onClick={() => { setFilters(EMPTY_FILTERS); setPage(1); setApplied(EMPTY_FILTERS) }}
-          >
-            សម្អាត
-          </button>
+          <div className="flex gap-2 w-full sm:w-auto">
+            <button type="submit" className="btn-primary flex-1 sm:flex-none justify-center">ស្វែងរក</button>
+            <button
+              type="button"
+              className="btn-secondary flex-1 sm:flex-none justify-center"
+              onClick={() => { setFilters(EMPTY_FILTERS); setPage(1); setApplied(EMPTY_FILTERS) }}
+            >
+              សម្អាត
+            </button>
+          </div>
         </form>
       </div>
 

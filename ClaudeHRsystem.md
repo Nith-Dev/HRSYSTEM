@@ -342,17 +342,51 @@ Name, department, and admin are stored at time of change so the log remains read
 
 ## 11. How to Run Locally
 
-```bash
+This project uses **Doppler** to manage environment variables — no `.env` file needs to be copied between devices.
+
+### First-time setup on a new device
+
+```powershell
+# 1. Install Doppler CLI (run as Administrator)
+winget install Doppler.doppler
+
+# 2. Login (opens browser for auth)
+doppler login
+
+# 3. Connect backend
+cd backend
+doppler setup    # select project: hrsystem, config: dev
+
+# 4. Connect frontend
+cd ../frontend
+doppler setup    # select project: hrsystem, config: dev
+```
+
+### Getting latest secrets on an existing device
+
+Since secrets live in Doppler, just run the app normally — Doppler always fetches the latest on every run. No syncing needed.
+
+```powershell
+doppler run -- npm run dev
+```
+
+> If you added a new variable, just add it in the Doppler dashboard — it's instantly available on all devices.
+
+### Running the app
+
+```powershell
 # Terminal 1 — Backend
 cd backend
-npm run dev        # http://localhost:5000
+doppler run -- npm run dev        # http://localhost:5000
 
 # Terminal 2 — Frontend
 cd frontend
-npm run dev        # http://localhost:5173
+doppler run -- npm run dev        # http://localhost:5173
 ```
 
-### First-time setup
+> All secrets (DATABASE_URL, JWT_SECRET, etc.) are stored in Doppler dashboard under project `hrsystem` → `dev` environment. No `.env` file is needed locally.
+
+### First-time database setup (new project only)
 ```bash
 cd backend
 npx prisma db push   # Create tables
@@ -446,4 +480,10 @@ See `.env.example` files in each folder for templates.
 
 ---
 
-*Last updated: June 2026 — Claude Sonnet 4.6*
+*Last updated: 29 June 2026 — Claude Sonnet 4.6*
+
+## Changelog
+
+| Date | Change |
+|---|---|
+| 29 June 2026 | Set up Doppler for environment variable management (Section 11) |

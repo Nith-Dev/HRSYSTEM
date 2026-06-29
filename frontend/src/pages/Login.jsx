@@ -42,7 +42,7 @@ export default function Login() {
           <img src="/pwa-64x64.png" alt="emblem" className="w-12 h-12 rounded-xl shadow-lg" />
           <div>
             <p className="text-white font-bold text-sm leading-tight">អគ្គាធិការដ្ឋាន</p>
-            <p className="text-blue-200 text-xs">នគរបាលជាតិ</p>
+            <p className="text-blue-200 text-xs">ក្រសួងមហាផ្ឬៃ</p>
           </div>
         </div>
 
@@ -72,7 +72,7 @@ export default function Login() {
           <img src="/pwa-64x64.png" alt="emblem" className="w-10 h-10 rounded-xl" />
           <div>
             <p className="font-bold text-gray-900 text-sm">អគ្គាធិការដ្ឋាន</p>
-            <p className="text-gray-500 text-xs">នគរបាលជាតិ</p>
+            <p className="text-gray-500 text-xs">ក្រសួងមហាផ្ឬៃ</p>
           </div>
         </div>
 
